@@ -365,6 +365,116 @@ class UjianController extends Controller
         return redirect(route('userUjian', ['ujian' => $ujian->name, 'token' => encrypt($ujian->id)]));
     }
 
+    // public function userUjian($ujian, $token)
+    // {
+    //     $ujianId = decrypt($token);
+
+    //     try {
+    //         $userCommit = UserCommit::where('user_id', Auth()->user()->id)->where('ujian_id', $ujianId)->orderBy('created_at', 'desc')->first();
+    //         $userCommitFirst = UserCommit::where('user_id', Auth()->user()->id)->where('ujian_id', $ujianId)->orderBy('created_at', 'asc')->first();
+    //     } catch (Exception $e) {
+    //         abort(404);
+    //     }
+
+    //     $ujian = Ujian::find($ujianId);
+    //     $roles = DashboardController::getRolesName();
+    //     $assignedKelas = DashboardController::getAssignedClass();
+
+    //     if ($ujian->tipe == 'multiple') {
+    //         $soalUjianMultiple = $ujian->soalUjianMultiple;
+
+    //         if ($ujian->tipe == 'multiple' && $userCommitFirst['status'] == 'selesai') {
+    //             foreach ($soalUjianMultiple as $key) {
+    //                 UserJawaban::where('user_id', auth()->user()->id)
+    //                     ->where('multiple_id', $key->id)
+    //                     ->delete();
+    //             }
+    //             $userCommitFirst->delete();
+    //         }
+
+    //         return view('menu.siswa.ujian.startUjianMultiple', [
+    //             'userCommit' => $userCommit,
+    //             'ujian' => $ujian,
+    //             'soalUjianMultiple' => $soalUjianMultiple,
+    //             'title' => $ujian->name,
+    //             'roles' => $roles,
+    //             'assignedKelas' => $assignedKelas,
+    //         ]);
+    //     } elseif ($ujian->tipe == 'kecermatan') {
+    //         $soalUjianMultiple = $ujian->soalUjianMultiple;
+
+    //         if ($userCommit->status == 'active' || $userCommit->status == 'selesai') {
+    //             foreach ($ujian->Kecermatan as $key) {
+    //                 UserJawabanKecermatan::where('kecermatan_id', $key->id)->delete();
+    //             }
+    //         }
+
+    //         foreach ($ujian->Kecermatan as $key) {
+    //             for ($i = 0; $i < $key->jumlah_soal; $i++) {
+    //                 $letters = [$key->a, $key->b, $key->c];
+
+    //                 if ($key->d !== null) {
+    //                     $letters[] = $key->d;
+    //                 }
+
+    //                 if ($key->e !== null) {
+    //                     $letters[] = $key->e;
+    //                 }
+
+    //                 shuffle($letters);
+    //                 $answer = array_pop($letters);
+
+    //                 if ($key->a == $answer) {
+    //                     $answer = "a";
+    //                 } else if ($key->b == $answer) {
+    //                     $answer = "b";
+    //                 } else if ($key->c == $answer) {
+    //                     $answer = "c";
+    //                 } else if ($key->d == $answer) {
+    //                     $answer = "d";
+    //                 } else if ($key->e == $answer) {
+    //                     $answer = "e";
+    //                 }
+
+    //                 $soal = implode('', $letters);
+
+    //                 UserJawabanKecermatan::create([
+    //                     "user_id" => auth()->user()->id,
+    //                     "soal" => $soal,
+    //                     "jawaban" => $answer,
+    //                     "kecermatan_id" => $key->id,
+    //                 ]);
+    //             }
+    //         }
+
+    //         $userCommit->update(["status" => "selesai"]);
+
+    //         $userJawabanKecermatan = UserJawabanKecermatan::where('user_id', Auth()->user()->id)
+    //             ->whereIn('kecermatan_id', $ujian->Kecermatan->pluck('id'))
+    //             ->get();
+
+    //         return view('menu.siswa.ujian.startUjianKecermatan', [
+    //             'userCommit' => $userCommit,
+    //             'ujian' => $ujian,
+    //             'userJawabanKecermatan' => $userJawabanKecermatan,
+    //             'title' => $ujian->name,
+    //             'roles' => $roles,
+    //             'assignedKelas' => $assignedKelas,
+    //         ]);
+    //     } else {
+    //         $soalUjianEssay = $ujian->SoalUjianEssay;
+
+    //         return view('menu.siswa.ujian.startUjian', [
+    //             'userCommit' => $userCommit,
+    //             'ujian' => $ujian,
+    //             'soalUjianEssay' => $soalUjianEssay,
+    //             'title' => $ujian->name,
+    //             'roles' => $roles,
+    //             'assignedKelas' => $assignedKelas,
+    //         ]);
+    //     }
+    // }
+
     public function userUjian($ujian, $token)
     {
         $ujianId = decrypt($token);
@@ -377,11 +487,13 @@ class UjianController extends Controller
         }
 
         $ujian = Ujian::find($ujianId);
+
         $roles = DashboardController::getRolesName();
         $assignedKelas = DashboardController::getAssignedClass();
 
         if ($ujian->tipe == 'multiple') {
-            $soalUjianMultiple = $ujian->soalUjianMultiple;
+            $soalUjianMultiple = $ujian->soalUjianMultiple; // Ambil semua soal dari ujian
+
 
             if ($ujian->tipe == 'multiple' && $userCommitFirst['status'] == 'selesai') {
                 foreach ($soalUjianMultiple as $key) {
@@ -390,39 +502,45 @@ class UjianController extends Controller
                         ->delete();
                 }
                 $userCommitFirst->delete();
+                // dd('here');
             }
+
 
             return view('menu.siswa.ujian.startUjianMultiple', [
                 'userCommit' => $userCommit,
                 'ujian' => $ujian,
-                'soalUjianMultiple' => $soalUjianMultiple,
+                'soalUjianMultiple' => $soalUjianMultiple, // Kirim data soal ke view
                 'title' => $ujian->name,
                 'roles' => $roles,
                 'assignedKelas' => $assignedKelas,
             ]);
         } elseif ($ujian->tipe == 'kecermatan') {
+
             $soalUjianMultiple = $ujian->soalUjianMultiple;
 
             if ($userCommit->status == 'active' || $userCommit->status == 'selesai') {
                 foreach ($ujian->Kecermatan as $key) {
-                    UserJawabanKecermatan::where('kecermatan_id', $key->id)->delete();
+                    UserJawabanKecermatan::where('kecermatan_id', $key->id)->where('user_id', Auth()->user()->id)->delete();
                 }
+                // dd($ujian->Kecermatan);
+                // dd("here2");
+                // userCommit::where('ujian_id', $ujian->id)->delete();
             }
-
+            // dd($userCommit->status);
             foreach ($ujian->Kecermatan as $key) {
                 for ($i = 0; $i < $key->jumlah_soal; $i++) {
                     $letters = [$key->a, $key->b, $key->c];
 
-                    if ($key->d !== null) {
+                    if ($key->d !== null) { // Include D if it's not null
                         $letters[] = $key->d;
                     }
 
-                    if ($key->e !== null) {
+                    if ($key->e !== null) { // Include E if it's not null
                         $letters[] = $key->e;
                     }
 
                     shuffle($letters);
-                    $answer = array_pop($letters);
+                    $answer = array_pop($letters); // Remove one letter to be the answer
 
                     if ($key->a == $answer) {
                         $answer = "a";
@@ -436,18 +554,21 @@ class UjianController extends Controller
                         $answer = "e";
                     }
 
-                    $soal = implode('', $letters);
+                    $soal = implode('', $letters); // Convert the array to a string
 
-                    UserJawabanKecermatan::create([
+                    $data = [
                         "user_id" => auth()->user()->id,
                         "soal" => $soal,
                         "jawaban" => $answer,
                         "kecermatan_id" => $key->id,
-                    ]);
+                    ];
+
+                    UserJawabanKecermatan::create($data);
                 }
             }
 
-            $userCommit->update(["status" => "selesai"]);
+            $data = ["status" => "selesai"];
+            $userCommit->update($data);
 
             $userJawabanKecermatan = UserJawabanKecermatan::where('user_id', Auth()->user()->id)
                 ->whereIn('kecermatan_id', $ujian->Kecermatan->pluck('id'))
@@ -456,18 +577,18 @@ class UjianController extends Controller
             return view('menu.siswa.ujian.startUjianKecermatan', [
                 'userCommit' => $userCommit,
                 'ujian' => $ujian,
-                'userJawabanKecermatan' => $userJawabanKecermatan,
+                'userJawabanKecermatan' => $userJawabanKecermatan, // Kirim data soal ke view
                 'title' => $ujian->name,
                 'roles' => $roles,
                 'assignedKelas' => $assignedKelas,
             ]);
         } else {
-            $soalUjianEssay = $ujian->SoalUjianEssay;
+            $soalUjianEssay = $ujian->SoalUjianEssay; // Ambil semua soal dari ujian
 
             return view('menu.siswa.ujian.startUjian', [
                 'userCommit' => $userCommit,
                 'ujian' => $ujian,
-                'soalUjianEssay' => $soalUjianEssay,
+                'soalUjianEssay' => $soalUjianEssay, // Kirim data soal ke view
                 'title' => $ujian->name,
                 'roles' => $roles,
                 'assignedKelas' => $assignedKelas,

@@ -136,10 +136,12 @@
                                     $salah = 0;
                                     // dd($key->UserJawabanKecermatan);
                                     foreach ($key->UserJawabanKecermatan as $key2) {
-                                        if ($key2->jawaban == strtolower($key2->jawaban_user)) {
-                                            $benar++;
-                                        } else {
-                                            $salah++;
+                                        if ($key2->user_id == Auth()->user()->id) {
+                                            if ($key2->jawaban == strtolower($key2->jawaban_user)) {
+                                                $benar++;
+                                            } else {
+                                                $salah++;
+                                            }
                                         }
                                     }
                                     $totalBenar += $benar;
@@ -153,6 +155,66 @@
                             @endforeach
                         </tbody>
                     </table>
+
+                    {{-- Grafik Hasil Ujian --}}
+                    <div class="text-center mt-4">
+                        <canvas id="resultChart" width="400" height="200"></canvas>
+                    </div>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var ctx = document.getElementById('resultChart').getContext('2d');
+                            var labels = [];
+                            var dataBenar = [];
+
+                            @foreach ($ujian->Kecermatan as $key)
+                                labels.push("Kolom {{ $loop->iteration }}");
+                                @php
+                                    $benar = 0;
+                                    foreach ($key->UserJawabanKecermatan as $key2) {
+                                        if ($key2->user_id == Auth()->user()->id && $key2->jawaban == strtolower($key2->jawaban_user)) {
+                                            $benar++;
+                                        }
+                                    }
+                                    echo "dataBenar.push($benar);";
+                                @endphp
+                            @endforeach
+
+                            var resultChart = new Chart(ctx, {
+                                type: 'bar', // Tipe grafik
+                                data: {
+                                    labels: labels, // Nama-nama kolom sebagai label sumbu X
+                                    datasets: [{
+                                        label: 'Jumlah Jawaban Benar per Kolom',
+                                        data: dataBenar, // Data jumlah benar dari setiap kolom
+                                        backgroundColor: 'rgba(128, 0, 0, 0.6)',
+                                        borderColor: 'rgba(128, 0, 0, 1)',
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            suggestedMin: 0, // Minimum value with padding
+                                            suggestedMax: Math.max(...dataBenar) + 2, // Maximum value with padding
+                                            title: {
+                                                display: true,
+                                                text: 'Jumlah Jawaban Benar'
+                                            },
+                                            
+                                        },
+                                        x: {
+                                            title: {
+                                                display: true,
+                                                text: 'Kolom'
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    </script>
 
                     <div class="text-center">
                         <div class="fs-5">
