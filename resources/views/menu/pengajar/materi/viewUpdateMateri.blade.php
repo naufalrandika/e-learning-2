@@ -176,7 +176,7 @@
     </div>
 
     {{-- Script yang dibutuhkan --}}
-    <script src="https://cdn.tiny.cloud/1/08zf8cyeimpxrp7cayepbetteafsdh873gi3db44558j03ll/tinymce/6/tinymce.min.js"
+    <script src="https://cdn.tiny.cloud/1/jqqif5psx8ajdrpos129cpypqbqy3qmzk0lxwwxdu9s2lsn7/tinymce/6/tinymce.min.js"
         referrerpolicy="origin"></script>;
 
     <script src="{{ url('/asset/js/rich-text-editor.js') }}"></script>

@@ -283,7 +283,7 @@
     </div>
     </div>
 
-    <script src="https://cdn.tiny.cloud/1/08zf8cyeimpxrp7cayepbetteafsdh873gi3db44558j03ll/tinymce/6/tinymce.min.js"
+    <script src="https://cdn.tiny.cloud/1/jqqif5psx8ajdrpos129cpypqbqy3qmzk0lxwwxdu9s2lsn7/tinymce/6/tinymce.min.js"
         referrerpolicy="origin"></script>;
     <script src="{{ url('/asset/js/rich-text-editor.js') }}"></script>
 
@@ -497,26 +497,56 @@
 
                 // Tambahkan formulir pertanyaan baru ke dalam container
                 $('#containerPertanyaan').append(formulirPertanyaanBaru);
-
+                tinymce.remove(".tinymce");
                 tinymce.init({
                     selector: ".tinymce",
-                    plugins: "image link lists media",
+                    plugins: "image link lists media imageupload",
                     toolbar: "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
                     menubar: false,
                     paste_data_images: true,
                     statusbar: false,
+                    file_picker_types: 'image',
+                    images_file_types: 'jpg,jpeg,png,gif,webp',
+                    image_upload_url: '/update-ujian', // URL endpoint untuk meng-handle upload
+                    file_picker_callback: (cb, value, meta) => {
+                        const input = document.createElement('input');
+                        input.setAttribute('type', 'file');
+                        input.setAttribute('accept', 'image/*');
 
-                    images_upload_handler: function(blobInfo, success, failure) {
-                        // Fungsi penanganan unggah gambar, dapat diisi sesuai kebutuhan.
-                        // Di sini, kami mengembalikan false untuk menonaktifkan unggah gambar.
-                        return true;
+                        input.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+
+                        const reader = new FileReader();
+                        reader.addEventListener('load', () => {
+                            /*
+                            Note: Now we need to register the blob in TinyMCEs image blob
+                            registry. In the next release this part hopefully won't be
+                            necessary, as we are looking to handle it internally.
+                            */
+                            const id = 'blobid' + (new Date()).getTime();
+                            const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
+                            const base64 = reader.result.split(',')[1];
+                            const blobInfo = blobCache.create(id, file, base64);
+                            blobCache.add(blobInfo);
+
+                            /* call the callback and populate the Title field with the file name */
+                            cb(blobInfo.blobUri(), { title: file.name });
+                        });
+                        reader.readAsDataURL(file);
+                        });
+
+                        input.click();
                     },
+                    // images_upload_handler: function(blobInfo, success, failure) {
+                    //     // Fungsi penanganan unggah gambar, dapat diisi sesuai kebutuhan.
+                    //     // Di sini, kami mengembalikan false untuk menonaktifkan unggah gambar.
+                    //     return true;
+                    // },
                     ai_request: (request, respondWith) =>
                         respondWith.string(() =>
                             Promise.reject("See docs to implement AI Assistant")
                         ),
                 });
-
                 // Aktifkan tombol Kurangi pada pertanyaan sebelumnya (jika ada)
                 $('.pertanyaan:last').prev().find('.btnKurangi').show();
             });
