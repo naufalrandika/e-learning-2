@@ -263,7 +263,7 @@
                                                 {{-- <input type="text"
                                                     class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
                                                     disabled value="{{ $soal->a }}"> --}}
-                                                <textarea class="tinymce form-control" id="" name="a[]" rows="2" disabled>{!! $soal->a !!}</textarea>
+                                                <div class="tinymce form-control" id="" name="a[]">{!! $soal->a !!}</div>
                                             </div>
                                             <div class="col-6 mb-1">
                                                 <div class="flex flex-row">
@@ -587,7 +587,8 @@
                 selector: ".tinymce",
                 toolsbar: false,
                 menubar: false,
-                content_css: false
+                content_css: false,
+                height: 300
             });
             
             // Aktifkan date picker dengan format tanggal dan jam

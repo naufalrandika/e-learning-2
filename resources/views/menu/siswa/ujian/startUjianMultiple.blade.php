@@ -71,7 +71,7 @@
                         <div class="rounded-2 mb-4 col-12">
                             <h6 class="text-primary fw-bold">Pilihan Jawaban</h6>
                             <div class="form-check flex flex-col">
-                                <input class="form-check-input items-center" type="radio" name="jawaban" id="pilihan-a" value="A">
+                                <input class="form-check-input flex items-center" type="radio" name="jawaban" id="pilihan-a" value="A">
                                 <label class="form-check-label" for="pilihan-a">
                                     A. <span class="tinymce" id="label-pilihan-a"></span>
                                 </label>
