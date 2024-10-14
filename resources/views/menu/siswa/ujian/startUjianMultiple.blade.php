@@ -70,34 +70,34 @@
                     <div class="rounded-2 mb-4 col-12">
                         <div class="rounded-2 mb-4 col-12">
                             <h6 class="text-primary fw-bold">Pilihan Jawaban</h6>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="jawaban" id="pilihan-a" value="A">
+                            <div class="form-check flex flex-col">
+                                <input class="form-check-input items-center" type="radio" name="jawaban" id="pilihan-a" value="A">
                                 <label class="form-check-label" for="pilihan-a">
-                                    A. <span id="label-pilihan-a"></span>
+                                    A. <span class="tinymce" id="label-pilihan-a"></span>
                                 </label>
                             </div>
-                            <div class="form-check">
+                            <div class="form-check flex flex-col">
                                 <input class="form-check-input" type="radio" name="jawaban" id="pilihan-b" value="B">
                                 <label class="form-check-label" for="pilihan-b">
-                                    B. <span id="label-pilihan-b"></span>
+                                    B. <span class="tinymce" id="label-pilihan-b"></span>
                                 </label>
                             </div>
-                            <div class="form-check">
+                            <div class="form-check flex flex-col">
                                 <input class="form-check-input" type="radio" name="jawaban" id="pilihan-c" value="C">
                                 <label class="form-check-label" for="pilihan-c">
-                                    C. <span id="label-pilihan-c"></span>
+                                    C. <span class="tinymce" id="label-pilihan-c"></span>
                                 </label>
                             </div>
                             <div class="form-check" id="soal-d">
                                 <input class="form-check-input" type="radio" name="jawaban" id="pilihan-d" value="D">
                                 <label class="form-check-label" for="pilihan-d">
-                                    D. <span id="label-pilihan-d"></span>
+                                    D. <span class="tinymce" id="label-pilihan-d"></span>
                                 </label>
                             </div>
                             <div class="form-check" id="soal-e">
                                 <input class="form-check-input" type="radio" name="jawaban" id="pilihan-e" value="E">
                                 <label class="form-check-label" for="pilihan-e">
-                                    E. <span id="label-pilihan-e"></span>
+                                    E. <span class="tinymce" id="label-pilihan-e"></span>
                                 </label>
                             </div>
                         </div>
@@ -158,7 +158,33 @@
         </div>
     </div>
 
+    <script src="https://cdn.tiny.cloud/1/jqqif5psx8ajdrpos129cpypqbqy3qmzk0lxwwxdu9s2lsn7/tinymce/6/tinymce.min.js"
+    referrerpolicy="origin"></script>;
+
+    <script src="{{ url('/asset/js/rich-text-editor.js') }}"></script>
+
     <script>
+        tinymce.init({
+                selector: ".tinymce",
+                inline: true,
+                readonly: 1,
+                toolbar: false,
+                menubar: false,
+                object_resizing: false,
+                content_css: false,
+                setup: function (editor) {
+                    editor.on('keydown', function (e) {
+                        e.preventDefault();  // Mencegah interaksi keyboard
+                    });
+                    editor.on('cut', function (e) {
+                        e.preventDefault();  // Mencegah aksi cut (potong konten)
+                    });
+                    editor.on('drop', function (e) {
+                        e.preventDefault();  // Mencegah drop file atau konten
+                    });
+                }
+        });
+
         // Variabel untuk melacak apakah pengguna telah menjawab setiap soal atau belum
         var jawabanTersimpan = [];
         var ujianForm = document.getElementById('ujianForm');
@@ -232,16 +258,31 @@
                 }
 
                 // Setel label pilihan jawaban
-                document.getElementById('label-pilihan-a').textContent = selectedSoal.a;
-                document.getElementById('label-pilihan-b').textContent = selectedSoal.b;
-                document.getElementById('label-pilihan-c').textContent = selectedSoal.c;
+                document.getElementById('label-pilihan-a').innerHTML = 
+                `
+                        ${selectedSoal.a}
+                `;
+
+                document.getElementById('label-pilihan-b').innerHTML = 
+                `
+                        ${selectedSoal.b}
+                `;
+
+                document.getElementById('label-pilihan-c').innerHTML = 
+                `
+                        ${selectedSoal.c}
+                `;
+
                 if (selectedSoal.d == null) {
                     // console.log('d = null');
                     // document.getElementById('label-pilihan-d').textContent = selectedSoal.d;
                     // document.getElementById('label-pilihan-d').classList.add('d-none');
                     document.getElementById('soal-d').classList.add('d-none');
                 } else {
-                    document.getElementById('label-pilihan-d').textContent = selectedSoal.d;
+                    document.getElementById('label-pilihan-d').innerHTML =
+                    `
+                            ${selectedSoal.d}
+                    `;
                     document.getElementById('soal-d').classList.remove('d-none');
                 }
                 if (selectedSoal.e == null) {
@@ -250,13 +291,19 @@
                     // document.getElementById('label-pilihan-d').classList.add('d-none');
                     document.getElementById('soal-e').classList.add('d-none');
                 } else {
-                    document.getElementById('label-pilihan-e').textContent = selectedSoal.d;
+                    document.getElementById('label-pilihan-e').innerHTML = 
+                    `
+                            ${selectedSoal.e}
+                    `;
                     document.getElementById('soal-e').classList.remove('d-none');
                 }
 
 
                 // document.getElementById('label-pilihan-d').textContent = selectedSoal.d;
-                document.getElementById('label-pilihan-e').textContent = selectedSoal.e;
+                document.getElementById('label-pilihan-e').innerHTML = 
+                `
+                        ${selectedSoal.e}
+                `;
 
                 // Reset pilihan jawaban
                 document.querySelectorAll('input[name="jawaban"]').forEach(function(input) {

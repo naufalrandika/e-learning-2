@@ -160,7 +160,7 @@
                                                             class="form-label">Pertanyaan <span
                                                                 class="text-danger">*</span></label>
                                                         <input type="hidden" name="pertanyaanId[]" value="">
-                                                        <textarea class="tinymce form-control" id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]" rows="3">{!! $key[1] !!}</textarea>
+                                                        <textarea class="tinymce form-control" id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]" rows="2">{!! $key[1] !!}</textarea>
                                                     </div>
                                                     <div class="col-lg-5 col-12 row">
                                                         <div class="col-5 m-1">
@@ -247,42 +247,47 @@
                                                                     <label for="pertanyaan${nomorPertanyaan}"
                                                                         class="form-label">A
                                                                         <span class="text-danger">*</span></label>
-                                                                    <input type="text" class="form-control"
+                                                                    {{-- <input type="text" class="form-control"
                                                                         name="a[]" required id=""
-                                                                        value="{{ $key->a }}">
+                                                                        value="{{ $key->a }}"> --}}
+                                                                    <textarea class="tinymce form-control" id="" name="a[]" rows="1">{!! $key->a !!}</textarea>
                                                                 </div>
                                                                 <div class="col-5 m-1">
                                                                     <label for="pertanyaan${nomorPertanyaan}"
                                                                         class="form-label">B
                                                                         <span class="text-danger">*</span></label>
-                                                                    <input type="text" class="form-control"
+                                                                    {{-- <input type="text" class="form-control"
                                                                         name="b[]" required id=""
-                                                                        value="{{ $key->b }}">
+                                                                        value="{{ $key->b }}"> --}}
+                                                                    <textarea class="tinymce form-control" id="" name="b[]" rows="1">{!! $key->b !!}</textarea>
                                                                 </div>
                                                                 <div class="col-5 m-1">
                                                                     <label for="pertanyaan${nomorPertanyaan}"
                                                                         class="form-label">C
                                                                         <span class="text-danger">*</span>
                                                                     </label>
-                                                                    <input type="text" class="form-control"
+                                                                    {{-- <input type="text" class="form-control"
                                                                         name="c[]" required id=""
-                                                                        value="{{ $key->c }}">
+                                                                        value="{{ $key->c }}"> --}}
+                                                                    <textarea class="tinymce form-control" id="" name="c[]" rows="1">{!! $key->c !!}</textarea>
                                                                 </div>
                                                                 <div class="col-5 m-1">
                                                                     <label for="pertanyaan${nomorPertanyaan}"
                                                                         class="form-label">D <span
                                                                             class="text-secondary small">(opsi)</span></label>
-                                                                    <input type="text" class="form-control"
+                                                                    {{-- <input type="text" class="form-control"
                                                                         name="d[]" value="{{ $key->d }}"
-                                                                        id="">
+                                                                        id=""> --}}
+                                                                        <textarea class="tinymce form-control" id="" name="d[]" rows="1">{!! $key->d !!}</textarea>
                                                                 </div>
                                                                 <div class="col-5 m-1">
                                                                     <label for="pertanyaan${nomorPertanyaan}"
                                                                         class="form-label">E <span
                                                                             class="text-secondary small">(opsi)</span></label>
-                                                                    <input type="text" class="form-control"
+                                                                    {{-- <input type="text" class="form-control"
                                                                         name="e[]" value="{{ $key->e }}"
-                                                                        id="">
+                                                                        id=""> --}}
+                                                                        <textarea class="tinymce form-control" id="" name="e[]" rows="1">{!! $key->e !!}</textarea>
                                                                 </div>
                                                                 <div class="col-5 m-1">
                                                                     <label for="pertanyaan${nomorPertanyaan}"
