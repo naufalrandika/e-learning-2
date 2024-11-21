@@ -17,7 +17,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
-    'shortname' => env('APP_SHORTNAME', 'Academify'),
+    'shortname' => env('APP_SHORTNAME', 'Bimbel-Patas'),
 
     /*
     |--------------------------------------------------------------------------
