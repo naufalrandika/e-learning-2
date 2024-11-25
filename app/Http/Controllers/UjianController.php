@@ -16,6 +16,7 @@ use App\Imports\SoalUjianImport;
 use App\Models\SoalUjianMultiple;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\UserJawabanKecermatan;
+use Illuminate\Support\Facades\Storage;
 
 class UjianController extends Controller
 {
@@ -82,12 +83,33 @@ class UjianController extends Controller
         $ujian = Ujian::create($data);
 
         if ($request->tipe == 'essay') {
-            foreach ($request->pertanyaan as $key) {
+            foreach ($request->pertanyaan as $index => $key) {
                 if ($key) {
-                    SoalUjianEssay::create([
-                        'ujian_id' => $ujian->id,
-                        'soal' => $key,
-                    ]);
+                    // Cek apakah indeks saat ini adalah file
+                    if ($request->hasFile("pertanyaan.$index")) {
+                        // Ambil file berdasarkan indeks
+                        $file = $request->file("pertanyaan.$index");
+
+                        // Validasi file
+                        $validatedata = $request->validate([
+                            "pertanyaan.$index" => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi gambar
+                        ]);
+
+                        // Menyimpan file dan mendapatkan path-nya
+                        $path = $file->store('soal', 'public'); // Menyimpan ke folder storage/soal
+
+                        // Simpan path gambar ke database
+                        SoalUjianEssay::create([
+                            'ujian_id' => $ujian->id,
+                            'soal' => Storage::url($path), // Menyimpan URL file
+                        ]);
+                    } else {
+                        // Jika bukan file, simpan sebagai string
+                        SoalUjianEssay::create([
+                            'ujian_id' => $ujian->id,
+                            'soal' => $key,
+                        ]);
+                    }
                 }
             }
         } elseif ($request->tipe == 'multiple') {
@@ -95,9 +117,28 @@ class UjianController extends Controller
                 $d = $request->d[$i] ?? null;
                 $e = $request->e[$i] ?? null;
 
+                // Inisialisasi variabel soal
+                $soal = $request->pertanyaan[$i];
+
+                if ($request->hasFile("pertanyaan.$i")) {
+                    $file = $request->file("pertanyaan.$i");
+
+                    // Validasi file
+                    $validatedata = $request->validate([
+                        "pertanyaan.$i" => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                    ]);
+
+                    // Simpan file dan dapatkan path-nya
+                    $path = $file->store('soal', 'public');
+
+                    // Ganti variabel soal dengan path file
+                    $soal = Storage::url($path);
+                }
+
+                // Simpan data ke database
                 SoalUjianMultiple::create([
                     'ujian_id' => $ujian->id,
-                    'soal' => $request->pertanyaan[$i],
+                    'soal' => $soal,
                     'a' => $request->a[$i],
                     'b' => $request->b[$i],
                     'c' => $request->c[$i],
