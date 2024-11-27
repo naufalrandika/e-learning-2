@@ -124,10 +124,24 @@
                                             <div class="mb-3">
                                                 <label for="pertanyaan${nomorPertanyaan}"
                                                     class="form-label">Pertanyaan</label>
-                                                <div class="border border-secondary p-4 rounded-2"
-                                                    id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]" rows="3"
-                                                    disabled>{!! $soal->soal !!}
-                                                </div>
+                                                @if ($soal && str_starts_with($soal->soal, '/storage/soal'))
+                                                    <!-- Kontainer Gambar -->
+                                                    <div class="image-soal-container">
+                                                        <img src="{{ $soal->soal }}" alt="Soal"
+                                                            class="image-soal-responsive" onclick="openModal(this)">
+                                                    </div>
+
+                                                    <!-- Modal -->
+                                                    <div id="imageModal" class="image-modal">
+                                                        <span class="close" onclick="closeModal()">&times;</span>
+                                                        <img class="modal-content" id="modalImage">
+                                                    </div>
+                                                @else
+                                                    <div class="border border-secondary p-4 rounded-2"
+                                                        id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]" rows="3"
+                                                        disabled>{!! $soal->soal !!}
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -204,9 +218,9 @@
                                                                         value="{{ $soal->id }}">
                                                                     @if ($tipe == 'essay')
                                                                         <td class="w-25">
-                                                                            <input type="number" class="form-control w-100"
-                                                                                placeholder="-" aria-label="nilai"
-                                                                                name="nilai[]"
+                                                                            <input type="number"
+                                                                                class="form-control w-100" placeholder="-"
+                                                                                aria-label="nilai" name="nilai[]"
                                                                                 value="{{ $nilai !== null ? $nilai : '' }}">
                                                                         </td>
                                                                     @endif
@@ -241,10 +255,24 @@
                                                 <div class="mb-3">
                                                     <label for="pertanyaan${nomorPertanyaan}"
                                                         class="form-label">Pertanyaan</label>
-                                                    <div class="border border-secondary p-4 rounded-2"
-                                                        id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]"
-                                                        rows="3" disabled>
-                                                        {!! $soal->soal !!}</div>
+                                                    @if ($soal && str_starts_with($soal->soal, '/storage/soal'))
+                                                        <!-- Kontainer Gambar -->
+                                                        <div class="image-soal-container">
+                                                            <img src="{{ $soal->soal }}" alt="Soal"
+                                                                class="image-soal-responsive" onclick="openModal(this)">
+                                                        </div>
+
+                                                        <!-- Modal -->
+                                                        <div id="imageModal" class="image-modal">
+                                                            <span class="close" onclick="closeModal()">&times;</span>
+                                                            <img class="modal-content" id="modalImage">
+                                                        </div>
+                                                    @else
+                                                        <div class="border border-secondary p-4 rounded-2"
+                                                            id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]"
+                                                            rows="3" disabled>
+                                                            {!! $soal->soal !!}</div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -252,42 +280,77 @@
                                     <div class="col-6">
                                         <div class="row">
                                             <div class="col-6 mb-1">
-                                                <label class="form-label">A
-                                                </label>
-                                                <input type="text"
+                                                <div class="flex flex-row">
+                                                    <label class="form-label">A</label>
+                                                    @if ($soal->jawaban == 'a')
+                                                        <span style="font-size; color: green">
+                                                            <i class="fa fa-check-square " aria-hidden="true"></i>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                {{-- <input type="text"
                                                     class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
-                                                    disabled value="{{ $soal->a }}">
+                                                    disabled value="{{ $soal->a }}"> --}}
+                                                <textarea class="form-control" id="" name="a[]" rows="2" disabled>{!! $soal->a !!}</textarea>
                                             </div>
                                             <div class="col-6 mb-1">
-                                                <label class="form-label">B
-                                                </label>
-                                                <input type="text"
-                                                    class="form-control @if ($soal->jawaban == 'b') text-white fw-bold bg-success @endif"
-                                                    disabled value="{{ $soal->b }}">
+                                                <div class="flex flex-row">
+                                                    <label class="form-label">B</label>
+                                                    @if ($soal->jawaban == 'b')
+                                                        <span style="font-size; color: green">
+                                                            <i class="fa fa-check-square " aria-hidden="true"></i>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                {{-- <input type="text"
+                                                    class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
+                                                    disabled value="{{ $soal->a }}"> --}}
+                                                <textarea class=" form-control" id="" name="b[]" rows="2" disabled>{!! $soal->b !!}</textarea>
                                             </div>
                                             <div class="col-6 mb-1">
-                                                <label class="form-label">C
-                                                </label>
-                                                <input type="text"
-                                                    class="form-control @if ($soal->jawaban == 'c') text-white fw-bold bg-success @endif"
-                                                    disabled value="{{ $soal->c }}">
+                                                <div class="flex flex-row">
+                                                    <label class="form-label">C</label>
+                                                    @if ($soal->jawaban == 'c')
+                                                        <span style="font-size; color: green">
+                                                            <i class="fa fa-check-square " aria-hidden="true"></i>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                {{-- <input type="text"
+                                                    class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
+                                                    disabled value="{{ $soal->a }}"> --}}
+                                                <textarea class=" form-control" id="" name="c[]" rows="2" disabled>{!! $soal->c !!}</textarea>
                                             </div>
                                             @if ($soal->d)
                                                 <div class="col-6 mb-1">
-                                                    <label class="form-label">D
-                                                    </label>
-                                                    <input type="text"
-                                                        class="form-control @if ($soal->jawaban == 'd') text-white fw-bold bg-success @endif"
-                                                        disabled value="{{ $soal->d }}">
+                                                    <div class="flex flex-row">
+                                                        <label class="form-label">D</label>
+                                                        @if ($soal->jawaban == 'd')
+                                                            <span style="font-size; color: green">
+                                                                <i class="fa fa-check-square " aria-hidden="true"></i>
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                    {{-- <input type="text"
+                                                        class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
+                                                        disabled value="{{ $soal->a }}"> --}}
+                                                    <textarea class=" form-control" id="" name="d[]" rows="2" disabled>{!! $soal->d !!}</textarea>
                                                 </div>
                                             @endif
                                             @if ($soal->e)
                                                 <div class="col-6 mb-1">
-                                                    <label class="form-label">E
-                                                    </label>
-                                                    <input type="text"
-                                                        class="form-control @if ($soal->jawaban == 'e') text-white fw-bold bg-success @endif"
-                                                        disabled value="{{ $soal->e }}">
+                                                    <div class="flex flex-row">
+                                                        <label class="form-label">E</label>
+                                                        @if ($soal->jawaban == 'e')
+                                                            <span style="font-size; color: green">
+                                                                <i class="fa fa-check-square " aria-hidden="true"></i>
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                    {{-- <input type="text"
+                                                        class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
+                                                        disabled value="{{ $soal->a }}"> --}}
+                                                    <textarea class=" form-control" id="" name="e[]" rows="2" disabled>{!! $soal->e !!}</textarea>
                                                 </div>
                                             @endif
                                         </div>
@@ -536,12 +599,50 @@
             @endif
 
         </div>
+
     </div>
 
     {{-- Tombol Submit --}}
 
+    <script src="https://cdn.tiny.cloud/1/jqqif5psx8ajdrpos129cpypqbqy3qmzk0lxwwxdu9s2lsn7/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>;
+
+    <script src="{{ url('/asset/js/rich-text-editor.js') }}"></script>
+
     <script>
+        // image modal
+        function openModal(image) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+
+            modal.style.display = "block"; // Tampilkan modal
+            modalImg.src = image.src; // Ambil sumber gambar yang diklik
+        }
+
+        // Fungsi untuk menutup modal
+        function closeModal() {
+            const modal = document.getElementById("imageModal");
+            modal.style.display = "none"; // Sembunyikan modal
+        }
+
+        // Deteksi tombol keyboard ESC untuk menutup modal
+        document.addEventListener("keydown", function(event) {
+            const modal = document.getElementById("imageModal");
+            if (event.key === "Escape" && modal.style.display === "block") {
+                closeModal(); // Tutup modal jika ESC ditekan
+            }
+        });
+
+
+
         $(document).ready(function() {
+            tinymce.remove('.tinymce');
+            tinymce.init({
+                selector: ".tinymce",
+                toolsbar: false,
+                menubar: false,
+                content_css: false
+            });
 
             // Aktifkan date picker dengan format tanggal dan jam
             $(function() {

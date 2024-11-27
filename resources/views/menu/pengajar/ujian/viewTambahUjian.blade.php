@@ -54,7 +54,7 @@
     <div class="">
         <div class="row p-4">
             <div class="col-12 col-lg-12">
-                <form action="{{ route('createUjian') }}" method="POST">
+                <form action="{{ route('createUjian') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <h4 class="fw-bold text-primary"><i class="fa-solid fa-pen"></i> Data Ujian</h4>
                     <div class=" row ">
@@ -281,9 +281,8 @@
             </div>
         </div>
     </div>
-    </div>
 
-    <script src="https://cdn.tiny.cloud/1/08zf8cyeimpxrp7cayepbetteafsdh873gi3db44558j03ll/tinymce/6/tinymce.min.js"
+    <script src="https://cdn.tiny.cloud/1/jqqif5psx8ajdrpos129cpypqbqy3qmzk0lxwwxdu9s2lsn7/tinymce/6/tinymce.min.js"
         referrerpolicy="origin"></script>;
     <script src="{{ url('/asset/js/rich-text-editor.js') }}"></script>
 
@@ -371,79 +370,90 @@
                 @if ($tipe == 'essay')
                     // Buat formulir pertanyaan baru Essay
                     const formulirPertanyaanBaru = `
-                 <div class="bg-white border border-dark-subtle rounded-2 p-4 mt-4 pertanyaan">
-                  <div class="">
-                                <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
-                                      <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
-                                </h3>
-                                <div class="mb-3">
-                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">Pertanyaan <span class="text-danger">*</span></label>
-                                    <textarea class="tinymce form-control" id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]" rows="3" ></textarea>
-                                </div>
+                    <div class="bg-white border border-dark-subtle rounded-2 p-4 mt-4 pertanyaan">
+                        <div>
+                            <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
+                                <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
+                            </h3>
+                            <div class="mb-3">
+                                <label class="form-label">Jenis Pertanyaan <span class="text-danger">*</span></label>
+                                <select class="form-select jenisPertanyaan" id="jenisPertanyaan${nomorPertanyaan}">
+                                    <option value="" disabled selected>Pilih jenis pertanyaan</option>
+                                    <option value="teks">Teks</option>
+                                    <option value="gambar">Gambar</option>
+                                </select>
                             </div>
+                            <div class="mb-3 pertanyaanTeks" style="display: none;">
+                                <label for="pertanyaan${nomorPertanyaan}" class="form-label">Pertanyaan Teks <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="pertanyaan${nomorPertanyaan}"
+                                        name="pertanyaan[]" rows="3" placeholder="Masukkan pertanyaan teks"></textarea>
                             </div>
-            `;
+                            <div class="mb-3 pertanyaanGambar" style="display: none;">
+                                <label for="pertanyaan${nomorPertanyaan}" class="form-label">Unggah Pertanyaan Gambar <span class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="pertanyaan${nomorPertanyaan}"
+                                    name="pertanyaan[]" accept="image/*" />
+                            </div>
+                        </div>
+                    </div>
+                    `;
                 @elseif ($tipe == 'multiple')
                     // Buat formulir pertanyaan baru Multiple
                     const formulirPertanyaanBaru = `
-                 <div class="bg-white border border-dark-subtle rounded-2 p-4 mt-4 pertanyaan">
-                                    <div class="">
-                                        <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
-                                            <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
-                                        </h3>
-                                        <div class="mb-3 row">
-                                            <div class="col-lg-7 col-12">
-                                                <label for="pertanyaan${nomorPertanyaan}"
-                                                    class="form-label">Pertanyaan <span class="text-danger">*</span></label>
-                                                <textarea class="tinymce form-control" id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]" rows="3" ></textarea>
-                                            </div>
-                                            <div class="col-lg-5 col-12 row">
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">A
-                                                          <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" name="a[]" required
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">B
-                                                          <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" name="b[]" required
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">C
-                                                        <span class="text-danger">*</span>
-                                                        </label>
-                                                    <input type="text" class="form-control" name="c[]" required
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">D</label>
-                                                    <input type="text" class="form-control" name="d[]"
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">E</label>
-                                                    <input type="text" class="form-control" name="e[]"
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}"
-                                                        class="form-label text-primary fw-bold">Jawaban</label>
-                                                    <select name="jawaban[]" class="form-select" id="">
-                                                        <option value="a">A</option>
-                                                        <option value="b">B</option>
-                                                        <option value="c">C</option>
-                                                        <option value="d">D</option>
-                                                        <option value="e">E</option>
-                                                    </select>
-                                                </div>
-
-                                            </div>
+                        <div class="bg-white border border-dark-subtle rounded-2 p-4 mt-4 pertanyaan">
+                            <div class="">
+                                <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
+                                    <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
+                                </h3>
+                                <div class="mb-3 row">
+                                    <div class="col-lg-7 col-12">
+                                        <label class="form-label">Pertanyaan <span class="text-danger">*</span></label>
+                                        <div class="mb-2">
+                                            <input type="radio" id="textOption${nomorPertanyaan}" name="pertanyaanType${nomorPertanyaan}" value="text" checked>
+                                            <label for="textOption${nomorPertanyaan}">Teks</label>
+                                            <input type="radio" id="imageOption${nomorPertanyaan}" name="pertanyaanType${nomorPertanyaan}" value="image">
+                                            <label for="imageOption${nomorPertanyaan}">Gambar</label>
+                                        </div>
+                                        <!-- Input untuk teks -->
+                                        <textarea class="form-control pertanyaan-text" id="pertanyaanText${nomorPertanyaan}" name="pertanyaan[]" rows="3"></textarea>
+                                        <!-- Input untuk gambar -->
+                                        <input type="file" class="form-control d-none pertanyaan-image" id="pertanyaanImage${nomorPertanyaan}" name="pertanyaan[]" accept="image/*">
+                                    </div>
+                                    <div class="col-lg-5 col-12 row">
+                                        <div class="col-5 m-1">
+                                            <label class="form-label">A <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="a[]" required>
+                                        </div>
+                                        <div class="col-5 m-1">
+                                            <label class="form-label">B <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="b[]" required>
+                                        </div>
+                                        <div class="col-5 m-1">
+                                            <label class="form-label">C <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="c[]" required>
+                                        </div>
+                                        <div class="col-5 m-1">
+                                            <label class="form-label">D</label>
+                                            <input type="text" class="form-control" name="d[]">
+                                        </div>
+                                        <div class="col-5 m-1">
+                                            <label class="form-label">E</label>
+                                            <input type="text" class="form-control" name="e[]">
+                                        </div>
+                                        <div class="col-5 m-1">
+                                            <label class="form-label text-primary fw-bold">Jawaban</label>
+                                            <select name="jawaban[]" class="form-select">
+                                                <option value="a">A</option>
+                                                <option value="b">B</option>
+                                                <option value="c">C</option>
+                                                <option value="d">D</option>
+                                                <option value="e">E</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
-            `;
+                            </div>
+                        </div>
+                    `;
                 @elseif ($tipe == 'kecermatan')
                     // Buat formulir pertanyaan baru Multiple
                     const formulirPertanyaanBaru = `
@@ -497,26 +507,60 @@
 
                 // Tambahkan formulir pertanyaan baru ke dalam container
                 $('#containerPertanyaan').append(formulirPertanyaanBaru);
-
+                tinymce.remove(".tinymce");
                 tinymce.init({
                     selector: ".tinymce",
-                    plugins: "image link lists media",
+                    plugins: "image link lists media imageupload",
                     toolbar: "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
                     menubar: false,
                     paste_data_images: true,
                     statusbar: false,
+                    file_picker_types: 'image',
+                    images_file_types: 'jpg,jpeg,png,gif,webp',
+                    image_upload_url: '/update-ujian', // URL endpoint untuk meng-handle upload
+                    file_picker_callback: (cb, value, meta) => {
+                        const input = document.createElement('input');
+                        input.setAttribute('type', 'file');
+                        input.setAttribute('accept', 'image/*');
 
-                    images_upload_handler: function(blobInfo, success, failure) {
-                        // Fungsi penanganan unggah gambar, dapat diisi sesuai kebutuhan.
-                        // Di sini, kami mengembalikan false untuk menonaktifkan unggah gambar.
-                        return true;
+                        input.addEventListener('change', (e) => {
+                            const file = e.target.files[0];
+
+                            const reader = new FileReader();
+                            reader.addEventListener('load', () => {
+                                /*
+                                Note: Now we need to register the blob in TinyMCEs image blob
+                                registry. In the next release this part hopefully won't be
+                                necessary, as we are looking to handle it internally.
+                                */
+                                const id = 'blobid' + (new Date()).getTime();
+                                const blobCache = tinymce.activeEditor
+                                    .editorUpload.blobCache;
+                                const base64 = reader.result.split(',')[1];
+                                const blobInfo = blobCache.create(id, file,
+                                    base64);
+                                blobCache.add(blobInfo);
+
+                                /* call the callback and populate the Title field with the file name */
+                                cb(blobInfo.blobUri(), {
+                                    title: file.name
+                                });
+                            });
+                            reader.readAsDataURL(file);
+                        });
+
+                        input.click();
                     },
+                    // images_upload_handler: function(blobInfo, success, failure) {
+                    //     // Fungsi penanganan unggah gambar, dapat diisi sesuai kebutuhan.
+                    //     // Di sini, kami mengembalikan false untuk menonaktifkan unggah gambar.
+                    //     return true;
+                    // },
                     ai_request: (request, respondWith) =>
                         respondWith.string(() =>
                             Promise.reject("See docs to implement AI Assistant")
                         ),
                 });
-
                 // Aktifkan tombol Kurangi pada pertanyaan sebelumnya (jika ada)
                 $('.pertanyaan:last').prev().find('.btnKurangi').show();
             });
@@ -536,6 +580,105 @@
 
 
             });
+        });
+
+        document.addEventListener('change', (e) => {
+            if (e.target.classList.contains('jenisPertanyaan')) {
+                const parent = e.target.closest('.pertanyaan');
+                const teksField = parent.querySelector('.pertanyaanTeks');
+                const gambarField = parent.querySelector('.pertanyaanGambar');
+
+                if (e.target.value === 'teks') {
+                    teksField.style.display = 'block';
+                    gambarField.style.display = 'none';
+                } else if (e.target.value === 'gambar') {
+                    teksField.style.display = 'none';
+                    gambarField.style.display = 'block';
+                } else {
+                    teksField.style.display = 'none';
+                    gambarField.style.display = 'none';
+                }
+            }
+        });
+
+        document.addEventListener('change', (e) => {
+            if (e.target.type === 'file') {
+                const file = e.target.files[0];
+                if (file) {
+                    // Validasi tipe file (opsional)
+                    if (!file.type.startsWith('image/')) {
+                        alert('Harap unggah file gambar yang valid!');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        // Hapus preview lama jika ada
+                        const existingPreview = e.target.parentNode.querySelector('.img-preview-container');
+                        if (existingPreview) {
+                            existingPreview.remove();
+                        }
+
+                        // Bungkus elemen preview gambar dalam div
+                        const previewContainer = document.createElement('div');
+                        previewContainer.classList.add('img-preview-container');
+                        previewContainer.style.position = 'relative';
+                        previewContainer.style.display = 'inline-block';
+                        previewContainer.style.marginTop = '20px';
+
+                        // Elemen gambar
+                        const imgPreview = document.createElement('img');
+                        imgPreview.src = event.target.result;
+                        imgPreview.alt = 'Preview Gambar';
+                        imgPreview.style.maxWidth = '300px';
+                        imgPreview.style.height = '200px';
+                        imgPreview.style.borderRadius = '8px';
+                        imgPreview.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                        imgPreview.style.cursor = 'pointer';
+
+                        // Tombol hapus
+                        const removeButton = document.createElement('button');
+                        removeButton.textContent = '✕';
+                        removeButton.classList.add('btn', 'btn-danger', 'btn-sm');
+                        removeButton.style.position = 'absolute';
+                        removeButton.style.top = '5px';
+                        removeButton.style.right = '5px';
+                        removeButton.style.borderRadius = '50%';
+                        removeButton.style.padding = '5px 10px';
+                        removeButton.style.border = 'none';
+                        removeButton.style.cursor = 'pointer';
+
+                        removeButton.addEventListener('click', () => {
+                            previewContainer.remove();
+                            e.target.value = ''; // Reset input file
+                        });
+
+                        // Tambahkan elemen ke dalam container
+                        previewContainer.appendChild(imgPreview);
+                        previewContainer.appendChild(removeButton);
+                        e.target.parentNode.appendChild(previewContainer);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+
+        // Event listener untuk toggle antara input teks dan gambar
+        document.addEventListener('change', function(e) {
+            if (e.target.matches(`input[name^="pertanyaanType"]`)) {
+                const pertanyaanId = e.target.name.replace('pertanyaanType', '');
+                const textInput = document.getElementById(`pertanyaanText${pertanyaanId}`);
+                const imageInput = document.getElementById(`pertanyaanImage${pertanyaanId}`);
+
+                if (e.target.value === 'text') {
+                    textInput.classList.remove('d-none');
+                    imageInput.classList.add('d-none');
+                } else {
+                    textInput.classList.add('d-none');
+                    imageInput.classList.remove('d-none');
+                }
+            }
         });
     </script>
 @endsection
