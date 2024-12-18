@@ -62,6 +62,38 @@ class UjianController extends Controller
         return view('menu.pengajar.ujian.viewTambahUjian', ['assignedKelas' => $assignedKelas, 'tipe' => $request->type, 'title' => 'Tambah Ujian', 'roles' => $roles, 'kelasId' => $id, 'mapel' => $mapel]);
     }
 
+    private function processTrixContent($content)
+    {
+        // Use DOMDocument to parse HTML content
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true); // Suppress warnings for HTML parsing
+        $dom->loadHTML($content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        libxml_clear_errors();
+
+        // Process all <img> tags
+        foreach ($dom->getElementsByTagName('img') as $img) {
+            $src = $img->getAttribute('src');
+
+            // If the image is a base64-encoded string, save it to storage
+            if (preg_match('/^data:image\/(\w+);base64,/', $src)) {
+                $data = explode(',', $src)[1];
+                $decodedData = base64_decode($data);
+
+                // Generate a unique file name
+                $imageName = 'soal/' . uniqid() . '.jpg';
+
+                // Save the image in the 'public/soal' directory
+                Storage::disk('public')->put($imageName, $decodedData);
+
+                // Replace the <img> src attribute with the stored image URL
+                $img->setAttribute('src', Storage::url($imageName));
+            }
+        }
+
+        // Return the updated HTML content
+        return $dom->saveHTML();
+    }
+
     public function createUjian(Request $request)
     {
         $name = $request->name ?? 'Ujian';
@@ -84,9 +116,10 @@ class UjianController extends Controller
         if ($request->tipe == 'essay') {
             foreach ($request->pertanyaan as $key) {
                 if ($key) {
+                    $soalWithImages = $this->processTrixContent($key); // Process Trix content for images
                     SoalUjianEssay::create([
                         'ujian_id' => $ujian->id,
-                        'soal' => $key,
+                        'soal' => $soalWithImages,
                     ]);
                 }
             }
@@ -95,9 +128,10 @@ class UjianController extends Controller
                 $d = $request->d[$i] ?? null;
                 $e = $request->e[$i] ?? null;
 
+                $soalWithImages = $this->processTrixContent($request->pertanyaan[$i]); // Process Trix content for images
                 SoalUjianMultiple::create([
                     'ujian_id' => $ujian->id,
-                    'soal' => $request->pertanyaan[$i],
+                    'soal' => $soalWithImages,
                     'a' => $request->a[$i],
                     'b' => $request->b[$i],
                     'c' => $request->c[$i],
@@ -128,8 +162,14 @@ class UjianController extends Controller
         }
 
         $assignedKelas = DashboardController::getAssignedClass();
-        return redirect(route('viewKelasMapel', ['assignedKelas' => $assignedKelas, 'mapel' => $request->mapelId, 'token' => encrypt($id), 'mapel_id' => $request->mapelId]))->with('success', 'Data Berhasil di tambah');
+        return redirect(route('viewKelasMapel', [
+            'assignedKelas' => $assignedKelas,
+            'mapel' => $request->mapelId,
+            'token' => encrypt($id),
+            'mapel_id' => $request->mapelId
+        ]))->with('success', 'Data Berhasil di tambah');
     }
+
 
     public function viewUjian($token, Request $request)
     {

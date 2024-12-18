@@ -36,6 +36,10 @@
     <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
 
+    {{-- trix --}}
+    <link rel="stylesheet" href="https://unpkg.com/trix@2.0.0/dist/trix.css">
+    <script src="https://unpkg.com/trix@2.0.0/dist/trix.umd.min.js"></script>
+
 </head>
 
 <body class="sidebar-toggled">
@@ -69,12 +73,13 @@
 
             <!-- Footer -->
             <footer class="sticky-footer bg-white">
-    <div class="container my-auto">
-        <div class="copyright text-center my-auto">
-            <span style="font-weight: bold; font-size: larger;">BIMBEL PATAS</span> <br> Pacu Prestasi bersama Bimbel Patas!
-        </div>
-    </div>
-</footer>
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span style="font-weight: bold; font-size: larger;">BIMBEL PATAS</span> <br> Pacu Prestasi
+                        bersama Bimbel Patas!
+                    </div>
+                </div>
+            </footer>
 
             <!-- End of Footer -->
 

@@ -283,9 +283,9 @@
     </div>
     </div>
 
-    <script src="https://cdn.tiny.cloud/1/jqqif5psx8ajdrpos129cpypqbqy3qmzk0lxwwxdu9s2lsn7/tinymce/6/tinymce.min.js"
+    {{-- <script src="https://cdn.tiny.cloud/1/jqqif5psx8ajdrpos129cpypqbqy3qmzk0lxwwxdu9s2lsn7/tinymce/6/tinymce.min.js"
         referrerpolicy="origin"></script>;
-    <script src="{{ url('/asset/js/rich-text-editor.js') }}"></script>
+    <script src="{{ url('/asset/js/rich-text-editor.js') }}"></script> --}}
 
     {{-- Modal Import --}}
     <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
@@ -341,8 +341,7 @@
 
     <script>
         $(document).ready(function() {
-
-            // Aktifkan date picker dengan format tanggal dan jam
+            // Activate datetime picker
             $(function() {
                 $('#inputDue').datetimepicker({
                     format: 'Y-m-d H:i',
@@ -361,211 +360,124 @@
                 $('#importDue').val($('#inputDue').val());
             });
 
-            // Tombol Tambah Pertanyaan diklik
+            // Add Question Button Clicked
             $('#btnTambahPertanyaan').click(function() {
-                // Mengambil jumlah pertanyaan saat ini
+                // Count current questions
                 const jumlahPertanyaan = $('.pertanyaan').length;
 
-                // Membuat nomor pertanyaan yang akan digunakan
+                // Determine the question number
                 var nomorPertanyaan = jumlahPertanyaan + 1;
+
                 @if ($tipe == 'essay')
-                    // Buat formulir pertanyaan baru Essay
+                    // Create new Essay question form
                     const formulirPertanyaanBaru = `
                  <div class="bg-white border border-dark-subtle rounded-2 p-4 mt-4 pertanyaan">
                   <div class="">
-                                <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
-                                      <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
-                                </h3>
-                                <div class="mb-3">
-                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">Pertanyaan <span class="text-danger">*</span></label>
-                                    <textarea class="tinymce form-control" id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]" rows="3" ></textarea>
-                                </div>
-                            </div>
-                            </div>
-            `;
+                        <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
+                            <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
+                        </h3>
+                        <div class="mb-3">
+                            <label for="pertanyaan${nomorPertanyaan}" class="form-label">Pertanyaan <span class="text-danger">*</span></label>
+                            <input id="pertanyaan${nomorPertanyaan}" type="hidden" name="pertanyaan[]" />
+                            <trix-editor input="pertanyaan${nomorPertanyaan}"></trix-editor>
+                        </div>
+                  </div>
+                </div>`;
                 @elseif ($tipe == 'multiple')
-                    // Buat formulir pertanyaan baru Multiple
+                    // Create new Multiple-choice question form
                     const formulirPertanyaanBaru = `
                  <div class="bg-white border border-dark-subtle rounded-2 p-4 mt-4 pertanyaan">
-                                    <div class="">
-                                        <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
-                                            <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
-                                        </h3>
-                                        <div class="mb-3 row">
-                                            <div class="col-lg-7 col-12">
-                                                <label for="pertanyaan${nomorPertanyaan}"
-                                                    class="form-label">Pertanyaan <span class="text-danger">*</span></label>
-                                                <textarea class="tinymce form-control" id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]" rows="3" ></textarea>
-                                            </div>
-                                            <div class="col-lg-5 col-12 row">
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">A
-                                                          <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" name="a[]" required
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">B
-                                                          <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" name="b[]" required
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">C
-                                                        <span class="text-danger">*</span>
-                                                        </label>
-                                                    <input type="text" class="form-control" name="c[]" required
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">D</label>
-                                                    <input type="text" class="form-control" name="d[]"
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">E</label>
-                                                    <input type="text" class="form-control" name="e[]"
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}"
-                                                        class="form-label text-primary fw-bold">Jawaban</label>
-                                                    <select name="jawaban[]" class="form-select" id="">
-                                                        <option value="a">A</option>
-                                                        <option value="b">B</option>
-                                                        <option value="c">C</option>
-                                                        <option value="d">D</option>
-                                                        <option value="e">E</option>
-                                                    </select>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
+                    <div class="">
+                        <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
+                            <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
+                        </h3>
+                        <div class="mb-3 row">
+                            <div class="col-lg-7 col-12">
+                                <label for="pertanyaan${nomorPertanyaan}" class="form-label">Pertanyaan <span class="text-danger">*</span></label>
+                                <input id="pertanyaan${nomorPertanyaan}" type="hidden" name="pertanyaan[]" />
+                                <trix-editor input="pertanyaan${nomorPertanyaan}"></trix-editor>
+                            </div>
+                            <div class="col-lg-5 col-12 row">
+                                <!-- Options -->
+                                <div class="col-5 m-1">
+                                    <label for="a${nomorPertanyaan}" class="form-label">A <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="a[]" id="a${nomorPertanyaan}" required>
                                 </div>
-            `;
+                                <div class="col-5 m-1">
+                                    <label for="b${nomorPertanyaan}" class="form-label">B <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="b[]" id="b${nomorPertanyaan}" required>
+                                </div>
+                                <div class="col-5 m-1">
+                                    <label for="c${nomorPertanyaan}" class="form-label">C <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="c[]" id="c${nomorPertanyaan}" required>
+                                </div>
+                                <div class="col-5 m-1">
+                                    <label for="d${nomorPertanyaan}" class="form-label">D</label>
+                                    <input type="text" class="form-control" name="d[]" id="d${nomorPertanyaan}">
+                                </div>
+                                <div class="col-5 m-1">
+                                    <label for="e${nomorPertanyaan}" class="form-label">E</label>
+                                    <input type="text" class="form-control" name="e[]" id="e${nomorPertanyaan}">
+                                </div>
+                                <div class="col-5 m-1">
+                                    <label for="jawaban${nomorPertanyaan}" class="form-label text-primary fw-bold">Jawaban</label>
+                                    <select name="jawaban[]" class="form-select" id="jawaban${nomorPertanyaan}">
+                                        <option value="a">A</option>
+                                        <option value="b">B</option>
+                                        <option value="c">C</option>
+                                        <option value="d">D</option>
+                                        <option value="e">E</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
                 @elseif ($tipe == 'kecermatan')
-                    // Buat formulir pertanyaan baru Multiple
+                    // Create new Precision question form
                     const formulirPertanyaanBaru = `
                  <div class="bg-white border border-dark-subtle rounded-2 p-4 mt-4 pertanyaan">
-                                    <div class="">
-                                        <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
-                                            <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
-                                        </h3>
-                                        <div class="mb-3 row">
-
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">A
-                                                          <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" name="a[]" required
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">B
-                                                          <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" name="b[]" required
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">C
-                                                        <span class="text-danger">*</span>
-                                                        </label>
-                                                    <input type="text" class="form-control" name="c[]" required
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">D <span class="text-secondary small">(opsi)</span></label>
-                                                    <input type="text" class="form-control" name="d[]"
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="pertanyaan${nomorPertanyaan}" class="form-label">E <span class="text-secondary small">(opsi)</span></label>
-                                                    <input type="text" class="form-control" name="e[]"
-                                                        id="">
-                                                </div>
-                                                <div class="col-5 m-1">
-                                                    <label for="jumlah${nomorPertanyaan}" class="form-label">Jumlah Soal<span class="text-secondary small"></span></label>
-                                                    <input type="number" value="" required class="form-control" required name="jumlahSoal[]"
-                                                        id="">
-                                                </div>
-                                        </div>
-                                    </div>
-                                </div>
-            `;
+                    <div class="">
+                        <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
+                            <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
+                        </h3>
+                        <div class="mb-3 row">
+                            <!-- Options -->
+                            <div class="col-5 m-1">
+                                <label for="a${nomorPertanyaan}" class="form-label">A <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="a[]" id="a${nomorPertanyaan}" required>
+                            </div>
+                            <div class="col-5 m-1">
+                                <label for="b${nomorPertanyaan}" class="form-label">B <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="b[]" id="b${nomorPertanyaan}" required>
+                            </div>
+                            <div class="col-5 m-1">
+                                <label for="jumlah${nomorPertanyaan}" class="form-label">Jumlah Soal</label>
+                                <input type="number" class="form-control" name="jumlahSoal[]" id="jumlah${nomorPertanyaan}" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
                 @endif
 
-
-                // Tambahkan formulir pertanyaan baru ke dalam container
+                // Add the new question form to the container
                 $('#containerPertanyaan').append(formulirPertanyaanBaru);
-                tinymce.remove(".tinymce");
-                tinymce.init({
-                    selector: ".tinymce",
-                    plugins: "image link lists media imageupload",
-                    toolbar: "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | align lineheight | tinycomments | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
-                    menubar: false,
-                    paste_data_images: true,
-                    statusbar: false,
-                    file_picker_types: 'image',
-                    images_file_types: 'jpg,jpeg,png,gif,webp',
-                    image_upload_url: '/update-ujian', // URL endpoint untuk meng-handle upload
-                    file_picker_callback: (cb, value, meta) => {
-                        const input = document.createElement('input');
-                        input.setAttribute('type', 'file');
-                        input.setAttribute('accept', 'image/*');
 
-                        input.addEventListener('change', (e) => {
-                        const file = e.target.files[0];
-
-                        const reader = new FileReader();
-                        reader.addEventListener('load', () => {
-                            /*
-                            Note: Now we need to register the blob in TinyMCEs image blob
-                            registry. In the next release this part hopefully won't be
-                            necessary, as we are looking to handle it internally.
-                            */
-                            const id = 'blobid' + (new Date()).getTime();
-                            const blobCache =  tinymce.activeEditor.editorUpload.blobCache;
-                            const base64 = reader.result.split(',')[1];
-                            const blobInfo = blobCache.create(id, file, base64);
-                            blobCache.add(blobInfo);
-
-                            /* call the callback and populate the Title field with the file name */
-                            cb(blobInfo.blobUri(), { title: file.name });
-                        });
-                        reader.readAsDataURL(file);
-                        });
-
-                        input.click();
-                    },
-                    // images_upload_handler: function(blobInfo, success, failure) {
-                    //     // Fungsi penanganan unggah gambar, dapat diisi sesuai kebutuhan.
-                    //     // Di sini, kami mengembalikan false untuk menonaktifkan unggah gambar.
-                    //     return true;
-                    // },
-                    ai_request: (request, respondWith) =>
-                        respondWith.string(() =>
-                            Promise.reject("See docs to implement AI Assistant")
-                        ),
-                });
-                // Aktifkan tombol Kurangi pada pertanyaan sebelumnya (jika ada)
+                // Re-enable the remove button for the previous question
                 $('.pertanyaan:last').prev().find('.btnKurangi').show();
             });
 
-
-            // Tombol Kurangi diklik
+            // Remove question button clicked
             $('#containerPertanyaan').on('click', '.btnKurangi', function() {
-                // Hapus formulir pertanyaan yang terkait
                 $(this).closest('.pertanyaan').remove();
 
-                // Update nomor pertanyaan pada pertanyaan yang tersisa
+                // Update the question numbers for remaining questions
                 $('.pertanyaan').each(function(index) {
-                    // Menggunakan $(this) untuk merujuk pada elemen pertanyaan saat ini
                     const nomorPertanyaan = index + 1;
                     $(this).find('h3 span.badge').text(nomorPertanyaan);
                 });
-
-
             });
         });
     </script>
+
 @endsection
