@@ -229,183 +229,69 @@
                 </form>
             @elseif($ujian->tipe == 'multiple')
                 @foreach ($ujian->SoalUjianMultiple as $soal)
-                    <div class="col-lg-12 col-12 bg-white rounded-2 mb-4 p-4 ">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <div class=" border border border-primary shadow-sm  p-4 mt-4 pertanyaan">
-                                            <div class="">
-                                                <h3>Soal <span class="badge badge-primary">{{ $loop->iteration }}</span>
-                                                </h3>
-                                                <div class="mb-3">
-                                                    <label for="pertanyaan${nomorPertanyaan}"
-                                                        class="form-label">Pertanyaan</label>
-                                                    <div class="border border-secondary p-4 rounded-2"
-                                                        id="pertanyaan${nomorPertanyaan}" name="pertanyaan[]"
-                                                        rows="3" disabled>
-                                                        {!! $soal->soal !!}</div>
-                                                </div>
-                                            </div>
-                                        </div>
+                    <div class="col-lg-12 col-12 bg-white rounded-2 mb-4 p-4 shadow-sm">
+                        <div class="container my-4">
+                            <!-- SOAL Section -->
+                            <div class="row mb-4">
+                                <div class="col-12 soal-container">
+                                    <h2 class="fw-bold">Soal</h2>
+                                    <div class="border p-3 rounded bg-light">
+                                        {!! $soal->soal !!}
                                     </div>
-                                    <div class="col-6">
-                                        <div class="row">
-                                            <div class="col-6 mb-1">
-                                                <div class="flex flex-row">
-                                                    <label class="form-label">A</label>
-                                                    @if($soal->jawaban == 'a')
-                                                        <span style="font-size; color: green">
-                                                            <i class="fa fa-check-square " aria-hidden="true"></i>
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                                {{-- <input type="text"
-                                                    class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
-                                                    disabled value="{{ $soal->a }}"> --}}
-                                                <textarea class="tinymce form-control" id="" name="a[]" rows="2" disabled>{!! $soal->a !!}</textarea>
-                                            </div>
-                                            <div class="col-6 mb-1">
-                                                <div class="flex flex-row">
-                                                    <label class="form-label">B</label>
-                                                    @if($soal->jawaban == 'b')
-                                                        <span style="font-size; color: green">
-                                                            <i class="fa fa-check-square " aria-hidden="true"></i>
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                                {{-- <input type="text"
-                                                    class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
-                                                    disabled value="{{ $soal->a }}"> --}}
-                                                <textarea class="tinymce form-control" id="" name="b[]" rows="2" disabled>{!! $soal->b !!}</textarea>
-                                            </div>
-                                            <div class="col-6 mb-1">
-                                                <div class="flex flex-row">
-                                                    <label class="form-label">C</label>
-                                                    @if($soal->jawaban == 'c')
-                                                        <span style="font-size; color: green">
-                                                            <i class="fa fa-check-square " aria-hidden="true"></i>
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                                {{-- <input type="text"
-                                                    class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
-                                                    disabled value="{{ $soal->a }}"> --}}
-                                                <textarea class="tinymce form-control" id="" name="c[]" rows="2" disabled>{!! $soal->c !!}</textarea>
-                                            </div>
-                                            @if ($soal->d)
-                                                <div class="col-6 mb-1">
-                                                    <div class="flex flex-row">
-                                                        <label class="form-label">D</label>
-                                                        @if($soal->jawaban == 'd')
-                                                            <span style="font-size; color: green">
-                                                                <i class="fa fa-check-square " aria-hidden="true"></i>
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                    {{-- <input type="text"
-                                                        class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
-                                                        disabled value="{{ $soal->a }}"> --}}
-                                                    <textarea class="tinymce form-control" id="" name="d[]" rows="2" disabled>{!! $soal->d !!}</textarea>
-                                                </div>
-                                            @endif
-                                            @if ($soal->e)
-                                                <div class="col-6 mb-1">
-                                                    <div class="flex flex-row">
-                                                        <label class="form-label">E</label>
-                                                        @if($soal->jawaban == 'e')
-                                                            <span style="font-size; color: green">
-                                                                <i class="fa fa-check-square " aria-hidden="true"></i>
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                    {{-- <input type="text"
-                                                        class="form-control @if ($soal->jawaban == 'a') text-white fw-bold bg-success @endif"
-                                                        disabled value="{{ $soal->a }}"> --}}
-                                                    <textarea class="tinymce form-control" id="" name="e[]" rows="2" disabled>{!! $soal->e !!}</textarea>
-                                                </div>
-                                            @endif
+                                </div>
+                            </div>
+
+                            <!-- Answers A, B, E -->
+                            <div class="row text-center g-3">
+                                <div class="col-md-4">
+                                    <div class="jawaban">
+                                        <div class="image-box">
+                                            <h5>A</h5>
+                                            {!! $soal->a !!}
                                         </div>
                                     </div>
                                 </div>
-
+                                <div class="col-md-4">
+                                    <div class="jawaban">
+                                        <div class="image-box">
+                                            <h5>B</h5>
+                                            {!! $soal->b !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="jawaban">
+                                        <div class="image-box">
+                                            <h5>E</h5>
+                                            {!! $soal->e !!}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="col-lg-12">
-                                <div class="accordion mb-4 mt-4" id="ujian{{ $loop->iteration }}">
-                                    <div class="accordion-item ">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button bg-outline-danger  collapsed fw-bold"
-                                                type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#ujian{{ $loop->iteration }}-collapseOne"
-                                                aria-controls="ujian{{ $loop->iteration }}-collapseOne">
-                                                Submittion Siswa
-                                            </button>
-                                        </h2>
-
-                                        <div id="ujian{{ $loop->iteration }}-collapseOne"
-                                            class="accordion-collapse collapse">
-                                            <div class="accordion-body table-responsive"
-                                                style="max-height: 300px; overflow-y: auto;">
-                                                <table id="table" class="table table-striped table-hover table-lg ">
-                                                    <thead>
-                                                        <tr>
-                                                            <th scope="col">#</th>
-                                                            <th scope="col">Nama</th>
-                                                            <th scope="col">Submittion</th>
-                                                            <th scope="col">Nilai</th>
-                                                        </tr>
-                                                    </thead>
-
-                                                    <tbody>
-                                                        @foreach ($kelas->User as $key)
-                                                            @php
-                                                                // Mencari UserTugas sesuai dengan ID tugas yang Anda inginkan
-                                                                $userTugas = $key->UserJawaban
-                                                                    ->where('multiple_id', $soal->id)
-                                                                    ->first();
-                                                                $submition = App\Models\UserJawaban::where(
-                                                                    'user_id',
-                                                                    $key->id,
-                                                                )
-                                                                    ->where('multiple_id', $soal->id)
-                                                                    ->first();
-                                                                $nilai =
-                                                                    $userTugas && is_numeric($userTugas->nilai)
-                                                                        ? intval($userTugas->nilai)
-                                                                        : null;
-                                                            @endphp
-                                                            <tr>
-                                                                <td>{{ $loop->iteration }}</td>
-                                                                <td>{{ $key->name }}</td>
-                                                                <td>
-                                                                    @if ($submition)
-                                                                        {{ $submition['user_jawaban'] }}.
-                                                                        @if ($submition['user_jawaban'] == 'A')
-                                                                            {{ $soal->a }}
-                                                                        @elseif ($submition['user_jawaban'] == 'B')
-                                                                            {{ $soal->b }}
-                                                                        @elseif ($submition['user_jawaban'] == 'C')
-                                                                            {{ $soal->c }}
-                                                                        @elseif ($submition['user_jawaban'] == 'D')
-                                                                            {{ $soal->d }}
-                                                                        @elseif ($submition['user_jawaban'] == 'E')
-                                                                            {{ $soal->e }}
-                                                                        @endif
-                                                                    @else
-                                                                        -
-                                                                    @endif
-                                                                </td>
-                                                                <td>
-                                                                    {{ $nilai }}
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-
-                                                    </tbody>
-                                                </table>
-
-                                            </div>
+                            <!-- Answers C, D, Jawaban -->
+                            <div class="row text-center g-3 mt-1">
+                                <div class="col-md-4">
+                                    <div class="jawaban">
+                                        <div class="image-box">
+                                            <h5>C</h5>
+                                            {!! $soal->c !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="jawaban">
+                                        <div class="image-box">
+                                            <h5>D</h5>
+                                            {!! $soal->d !!}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="jawaban bg-success text-white">
+                                        <div>
+                                            <h5 class="fw-bold">Jawaban</h5>
+                                            <p class="mb-0">Correct Answer Here!</p>
                                         </div>
                                     </div>
                                 </div>
@@ -589,7 +475,7 @@
                 menubar: false,
                 content_css: false
             });
-            
+
             // Aktifkan date picker dengan format tanggal dan jam
             $(function() {
                 $('#due').datetimepicker({
@@ -760,4 +646,28 @@
             });
         });
     </script>
+
+    <style>
+        .soal-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .jawaban {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .image-box img {
+            max-height: 200px;
+            max-width: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+    </style>
 @endsection

@@ -74,6 +74,7 @@ Route::controller(UjianController::class)->group(function () {
     Route::get('/ujian/update/{token}', 'viewUpdateUjian')->middleware('auth')->name('viewUpdateUjian');
 
     Route::post('/store-ujian', 'createUjian')->middleware('auth')->name('createUjian');
+    Route::post('/trix-upload', 'uploadImage')->middleware('auth')->name('trix.upload');
     Route::post('/ujian/update-nilai', 'ujianUpdateNilai')->middleware('pengajar')->name('ujianUpdateNilai');
     Route::post('/update-ujian', 'updateUjian')->middleware('pengajar')->name('updateUjian');
     Route::post('/destroy-ujian', 'destroyUjian')->middleware('pengajar')->name('destroyUjian');

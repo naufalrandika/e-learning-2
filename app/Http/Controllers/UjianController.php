@@ -171,6 +171,28 @@ class UjianController extends Controller
     }
 
 
+    // trix upload
+    public function uploadImage(Request $request)
+    {
+        // Validate the uploaded file
+        $request->validate([
+            'file' => 'required|image|max:2048', // Max size 2MB
+        ]);
+
+        // Store the file in the 'public/soal' folder
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('soal', 'public');
+
+            // Return the public path as JSON response
+            return response()->json([
+                'url' => asset("storage/{$path}")
+            ]);
+        }
+
+        // Return an error response
+        return response()->json(['error' => 'File upload failed'], 400);
+    }
+
     public function viewUjian($token, Request $request)
     {
         $ujianId = decrypt($token);
