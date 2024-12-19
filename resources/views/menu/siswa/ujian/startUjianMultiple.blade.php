@@ -8,6 +8,49 @@
         </div>
     @endif
 
+    <style>
+        #soal-container {
+            overflow: hidden;
+        }
+
+        .soal-image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-top: 16px;
+        }
+
+        .soal-image {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .jawaban-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 400px;
+            height: 200px;
+            object-fit: cover;
+            overflow: hidden;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .jawaban-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+
     {{-- Informasi Tugas --}}
     <div class="mb-4 p-4 bg-white rounded-4">
         <div class=" p-4">
@@ -71,33 +114,34 @@
                         <div class="rounded-2 mb-4 col-12">
                             <h6 class="text-primary fw-bold">Pilihan Jawaban</h6>
                             <div class="form-check flex flex-col">
-                                <input class="form-check-input items-center" type="radio" name="jawaban" id="pilihan-a" value="A">
+                                <input class="form-check-input items-center" type="radio" name="jawaban" id="pilihan-a"
+                                    value="A">
                                 <label class="form-check-label" for="pilihan-a">
-                                    A. <span class="tinymce" id="label-pilihan-a"></span>
+                                    A. <span class="jawaban-container" id="label-pilihan-a"></span>
                                 </label>
                             </div>
                             <div class="form-check flex flex-col">
                                 <input class="form-check-input" type="radio" name="jawaban" id="pilihan-b" value="B">
                                 <label class="form-check-label" for="pilihan-b">
-                                    B. <span class="tinymce" id="label-pilihan-b"></span>
+                                    B. <span class="jawaban-container" id="label-pilihan-b"></span>
                                 </label>
                             </div>
                             <div class="form-check flex flex-col">
                                 <input class="form-check-input" type="radio" name="jawaban" id="pilihan-c" value="C">
                                 <label class="form-check-label" for="pilihan-c">
-                                    C. <span class="tinymce" id="label-pilihan-c"></span>
+                                    C. <span class="jawaban-container" id="label-pilihan-c"></span>
                                 </label>
                             </div>
                             <div class="form-check" id="soal-d">
                                 <input class="form-check-input" type="radio" name="jawaban" id="pilihan-d" value="D">
                                 <label class="form-check-label" for="pilihan-d">
-                                    D. <span class="tinymce" id="label-pilihan-d"></span>
+                                    D. <span class="jawaban-container" id="label-pilihan-d"></span>
                                 </label>
                             </div>
                             <div class="form-check" id="soal-e">
                                 <input class="form-check-input" type="radio" name="jawaban" id="pilihan-e" value="E">
                                 <label class="form-check-label" for="pilihan-e">
-                                    E. <span class="tinymce" id="label-pilihan-e"></span>
+                                    E. <span class="jawaban-container" id="label-pilihan-e"></span>
                                 </label>
                             </div>
                         </div>
@@ -159,30 +203,30 @@
     </div>
 
     <script src="https://cdn.tiny.cloud/1/jqqif5psx8ajdrpos129cpypqbqy3qmzk0lxwwxdu9s2lsn7/tinymce/6/tinymce.min.js"
-    referrerpolicy="origin"></script>;
+        referrerpolicy="origin"></script>;
 
     <script src="{{ url('/asset/js/rich-text-editor.js') }}"></script>
 
     <script>
         tinymce.init({
-                selector: ".tinymce",
-                inline: true,
-                readonly: 1,
-                toolbar: false,
-                menubar: false,
-                object_resizing: false,
-                content_css: false,
-                setup: function (editor) {
-                    editor.on('keydown', function (e) {
-                        e.preventDefault();  // Mencegah interaksi keyboard
-                    });
-                    editor.on('cut', function (e) {
-                        e.preventDefault();  // Mencegah aksi cut (potong konten)
-                    });
-                    editor.on('drop', function (e) {
-                        e.preventDefault();  // Mencegah drop file atau konten
-                    });
-                }
+            selector: ".tinymce",
+            inline: true,
+            readonly: 1,
+            toolbar: false,
+            menubar: false,
+            object_resizing: false,
+            content_css: false,
+            setup: function(editor) {
+                editor.on('keydown', function(e) {
+                    e.preventDefault(); // Mencegah interaksi keyboard
+                });
+                editor.on('cut', function(e) {
+                    e.preventDefault(); // Mencegah aksi cut (potong konten)
+                });
+                editor.on('drop', function(e) {
+                    e.preventDefault(); // Mencegah drop file atau konten
+                });
+            }
         });
 
         // Variabel untuk melacak apakah pengguna telah menjawab setiap soal atau belum
@@ -243,7 +287,7 @@
                 document.getElementById('soal-container').innerHTML = `
             <h1 class="text-primary fw-bold">Soal ${nomor}</h1>
             <hr>
-            <p>${selectedSoal.soal}</p>
+                <div class="soal-image-container">${selectedSoal.soal}</div>
         `;
                 // Cek apakah pengguna telah menjawab soal saat ini
                 var soalId = soalUjianMultiple[nomor - 1].id;
@@ -258,18 +302,18 @@
                 }
 
                 // Setel label pilihan jawaban
-                document.getElementById('label-pilihan-a').innerHTML = 
-                `
+                document.getElementById('label-pilihan-a').innerHTML =
+                    `
                         ${selectedSoal.a}
                 `;
 
-                document.getElementById('label-pilihan-b').innerHTML = 
-                `
+                document.getElementById('label-pilihan-b').innerHTML =
+                    `
                         ${selectedSoal.b}
                 `;
 
-                document.getElementById('label-pilihan-c').innerHTML = 
-                `
+                document.getElementById('label-pilihan-c').innerHTML =
+                    `
                         ${selectedSoal.c}
                 `;
 
@@ -280,7 +324,7 @@
                     document.getElementById('soal-d').classList.add('d-none');
                 } else {
                     document.getElementById('label-pilihan-d').innerHTML =
-                    `
+                        `
                             ${selectedSoal.d}
                     `;
                     document.getElementById('soal-d').classList.remove('d-none');
@@ -291,8 +335,8 @@
                     // document.getElementById('label-pilihan-d').classList.add('d-none');
                     document.getElementById('soal-e').classList.add('d-none');
                 } else {
-                    document.getElementById('label-pilihan-e').innerHTML = 
-                    `
+                    document.getElementById('label-pilihan-e').innerHTML =
+                        `
                             ${selectedSoal.e}
                     `;
                     document.getElementById('soal-e').classList.remove('d-none');
@@ -300,8 +344,8 @@
 
 
                 // document.getElementById('label-pilihan-d').textContent = selectedSoal.d;
-                document.getElementById('label-pilihan-e').innerHTML = 
-                `
+                document.getElementById('label-pilihan-e').innerHTML =
+                    `
                         ${selectedSoal.e}
                 `;
 

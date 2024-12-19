@@ -228,7 +228,7 @@
                     <button class="btn btn-primary btn-lg w-100" type="submit">Simpan</button>
                 </form>
             @elseif($ujian->tipe == 'multiple')
-                @foreach ($ujian->SoalUjianMultiple as $soal)
+                @foreach ($ujian->SoalUjianMultiple as $key)
                     <div class="col-lg-12 col-12 bg-white rounded-2 mb-4 p-4 shadow-sm">
                         <div class="container my-4">
                             <!-- SOAL Section -->
@@ -236,62 +236,66 @@
                                 <div class="col-12 soal-container">
                                     <h2 class="fw-bold">Soal</h2>
                                     <div class="border p-3 rounded bg-light">
-                                        {!! $soal->soal !!}
+                                        <input id="pertanyaan{{ $loop->iteration }}" type="hidden" name="pertanyaan[]"
+                                            value="{{ $key->soal }}">
+                                        <trix-editor input="pertanyaan{{ $loop->iteration }}"
+                                            class="trix-editor"></trix-editor>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Answers A, B, E -->
                             <div class="row text-center g-3">
-                                <div class="col-md-4">
-                                    <div class="jawaban">
-                                        <div class="image-box">
-                                            <h5>A</h5>
-                                            {!! $soal->a !!}
+                                @foreach (['a', 'b', 'e'] as $option)
+                                    <div class="col-md-4">
+                                        <div class="jawaban">
+                                            <div class="image-box">
+                                                <h5>{{ strtoupper($option) }}</h5>
+                                                <input id="jawaban{{ $loop->parent->iteration }}{{ $option }}"
+                                                    type="hidden" name="{{ $option }}[]"
+                                                    value="{{ $key->$option }}">
+                                                <trix-editor
+                                                    input="jawaban{{ $loop->parent->iteration }}{{ $option }}"
+                                                    class="trix-editor"></trix-editor>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="jawaban">
-                                        <div class="image-box">
-                                            <h5>B</h5>
-                                            {!! $soal->b !!}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="jawaban">
-                                        <div class="image-box">
-                                            <h5>E</h5>
-                                            {!! $soal->e !!}
-                                        </div>
-                                    </div>
-                                </div>
+                                @endforeach
                             </div>
 
                             <!-- Answers C, D, Jawaban -->
                             <div class="row text-center g-3 mt-1">
-                                <div class="col-md-4">
-                                    <div class="jawaban">
-                                        <div class="image-box">
-                                            <h5>C</h5>
-                                            {!! $soal->c !!}
+                                @foreach (['c', 'd'] as $option)
+                                    <div class="col-md-4">
+                                        <div class="jawaban">
+                                            <div class="image-box">
+                                                <h5>{{ strtoupper($option) }}</h5>
+                                                <input id="jawaban{{ $loop->parent->iteration }}{{ $option }}"
+                                                    type="hidden" name="{{ $option }}[]"
+                                                    value="{{ $key->$option }}">
+                                                <trix-editor
+                                                    input="jawaban{{ $loop->parent->iteration }}{{ $option }}"
+                                                    class="trix-editor"></trix-editor>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="jawaban">
-                                        <div class="image-box">
-                                            <h5>D</h5>
-                                            {!! $soal->d !!}
-                                        </div>
-                                    </div>
-                                </div>
+                                @endforeach
                                 <div class="col-md-4">
                                     <div class="jawaban bg-success text-white">
                                         <div>
                                             <h5 class="fw-bold">Jawaban</h5>
-                                            <p class="mb-0">Correct Answer Here!</p>
+                                            <select name="jawaban[]" class="form-select bg-light text-dark">
+                                                <option value="a" @if ($key->jawaban == 'a') selected @endif>A
+                                                </option>
+                                                <option value="b" @if ($key->jawaban == 'b') selected @endif>B
+                                                </option>
+                                                <option value="c" @if ($key->jawaban == 'c') selected @endif>C
+                                                </option>
+                                                <option value="d" @if ($key->jawaban == 'd') selected @endif>D
+                                                </option>
+                                                <option value="e" @if ($key->jawaban == 'e') selected @endif>E
+                                                </option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -668,6 +672,10 @@
             max-width: 200px;
             object-fit: cover;
             border-radius: 8px;
+        }
+
+        figcaption {
+            display: none;
         }
     </style>
 @endsection

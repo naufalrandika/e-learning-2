@@ -2,6 +2,12 @@
 
 @section('container')
 
+    <style>
+        figcaption {
+            display: none;
+        }
+    </style>
+
     {{-- Navigasi Breadcrumb --}}
     <div class="col-12 ps-4 pe-4 mb-4">
         <nav aria-label="breadcrumb">
@@ -361,6 +367,7 @@
             });
 
             // Trix Editor Image Upload Integration
+
             document.addEventListener("trix-attachment-add", function(event) {
                 const attachment = event.attachment;
 
@@ -370,8 +377,17 @@
             });
 
             function uploadImage(attachment) {
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']; // Allowed MIME types
+                const file = attachment.file;
+
+                // Validate file type
+                if (!allowedTypes.includes(file.type)) {
+                    alert("Only JPG, JPEG, and PNG files are allowed.");
+                    return; // Stop further execution if validation fails
+                }
+
                 const formData = new FormData();
-                formData.append("file", attachment.file);
+                formData.append("file", file);
 
                 fetch("{{ route('trix.upload') }}", {
                         method: "POST",
@@ -396,6 +412,7 @@
                         alert("Image upload failed.");
                     });
             }
+
 
             // Add Question Button Clicked
             $('#btnTambahPertanyaan').click(function() {

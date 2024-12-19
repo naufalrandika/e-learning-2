@@ -29,6 +29,10 @@
             color: inherit;
             /* Menggunakan warna teks warisan (sesuai dengan elemen induk) */
         }
+
+        figcaption {
+            display: none;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link rel="stylesheet" href="{{ url('/asset/css/jquery.datetimepicker.min.css') }}" />
