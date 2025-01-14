@@ -26,23 +26,23 @@
                     <hr>
                     <div class="d-flex justify-content-center">
                         <div class="text-center p-4 border  d-none" id="kolom-a">
-                            <h1 id="kolom-text-a" class="mb-2"></h1>
+                            <h1 id="kolom-text-a" class="mb-2" style="font-size: 7rem;"></h1>
                             <h3>A</h3>
                         </div>
                         <div class="text-center p-4 border  d-none" id="kolom-b">
-                            <h1 id="kolom-text-b" class="mb-2"></h1>
+                            <h1 id="kolom-text-b" class="mb-2" style="font-size: 7rem;"></h1>
                             <h3>B</h3>
                         </div>
                         <div class="text-center p-4 border  d-none" id="kolom-c">
-                            <h1 id="kolom-text-c" class="mb-2"></h1>
+                            <h1 id="kolom-text-c" class="mb-2" style="font-size: 7rem;"></h1>
                             <h3>C</h3>
                         </div>
                         <div class="text-center p-4 border  d-none" id="kolom-d">
-                            <h1 id="kolom-text-d" class="mb-2"></h1>
+                            <h1 id="kolom-text-d" class="mb-2" style="font-size: 7rem;"></h1>
                             <h3>D</h3>
                         </div>
                         <div class="text-center p-4 border  d-none" id="kolom-e">
-                            <h1 id="kolom-text-e" class="mb-2"></h1>
+                            <h1 id="kolom-text-e" class="mb-2" style="font-size: 7rem;"></h1>
                             <h3>E</h3>
                         </div>
                     </div>

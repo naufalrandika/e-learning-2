@@ -512,6 +512,18 @@
                                 <input type="text" class="form-control" name="b[]" id="b${nomorPertanyaan}" required>
                             </div>
                             <div class="col-5 m-1">
+                                <label for="c${nomorPertanyaan}" class="form-label">C <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="c[]" id="c${nomorPertanyaan}" required>
+                            </div>
+                            <div class="col-5 m-1">
+                                <label for="d${nomorPertanyaan}" class="form-label">D <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="d[]" id="d${nomorPertanyaan}" required>
+                            </div>
+                            <div class="col-5 m-1">
+                                <label for="e${nomorPertanyaan}" class="form-label">E <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="e[]" id="e${nomorPertanyaan}" required>
+                            </div>
+                            <div class="col-5 m-1">
                                 <label for="jumlah${nomorPertanyaan}" class="form-label">Jumlah Soal</label>
                                 <input type="number" class="form-control" name="jumlahSoal[]" id="jumlah${nomorPertanyaan}" required>
                             </div>

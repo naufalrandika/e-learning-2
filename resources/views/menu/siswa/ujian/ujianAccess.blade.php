@@ -129,31 +129,37 @@
                             @php
                                 $totalBenar = 0;
                                 $totalSalah = 0;
+                                $totalTidakDijawab = 0;
                             @endphp
                             @foreach ($ujian->Kecermatan as $key)
                                 @php
                                     $benar = 0;
                                     $salah = 0;
-                                    // dd($key->UserJawabanKecermatan);
+                                    $tidakDijawab = 0;
+                        
                                     foreach ($key->UserJawabanKecermatan as $key2) {
                                         if ($key2->user_id == Auth()->user()->id) {
-                                            if ($key2->jawaban == strtolower($key2->jawaban_user)) {
+                                            if (is_null($key2->jawaban_user)) {
+                                                $tidakDijawab++;
+                                            } elseif ($key2->jawaban == strtolower($key2->jawaban_user)) {
                                                 $benar++;
                                             } else {
                                                 $salah++;
                                             }
                                         }
                                     }
+                        
                                     $totalBenar += $benar;
                                     $totalSalah += $salah;
+                                    $totalTidakDijawab += $tidakDijawab;
                                 @endphp
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>Kolom {{ $loop->iteration }}</td>
-                                    <td>Benar: {{ $benar }}, Salah: {{ $salah }}</td>
+                                    <td>Benar: {{ $benar }}, Salah: {{ $salah }}, Tidak Dijawab: {{ $tidakDijawab }}</td>
                                 </tr>
                             @endforeach
-                        </tbody>
+                        </tbody>                        
                     </table>
 
                     {{-- Grafik Hasil Ujian --}}
@@ -221,6 +227,7 @@
                             <span class="text-primary fw-bold">Total: </span>
                             <span class="badge badge-danger">Benar : {{ $totalBenar }}</span>
                             <span class="badge badge-danger">Salah : {{ $totalSalah }}</span>
+                            <span class="badge badge-danger">Tidak Dijawab : {{ $totalTidakDijawab }}</span>
                         </div>
                         <h6 class="fw-bold display-6 text-primary mt-4">Ulangi Ujian Kecermatan?</h6>
                         <p>ingin mulai kecermatan sekarang? anda memiliki <span
