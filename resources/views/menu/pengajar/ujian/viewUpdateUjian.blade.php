@@ -517,6 +517,8 @@
 
     <script src="{{ url('/asset/js/rich-text-editor.js') }}"></script> --}}
 
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix/dist/trix.css">
+    <script type="text/javascript" src="https://unpkg.com/trix/dist/trix.js"></script>
     <script>
         $(document).ready(function() {
 
@@ -612,59 +614,56 @@
                 @elseif ($ujian->tipe == 'multiple')
                     // Buat formulir pertanyaan baru Multiple
                     const formulirPertanyaanBaru = `
-                        <div class="bg-white border border-dark-subtle rounded-2 p-4 mt-4 pertanyaan">
-                            <div>
-                                <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
-                                    <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
-                                </h3>
-                                <div class="mb-3 row">
-                                    <div class="col-lg-12 col-12 mb-3">
-                                        <label for="pertanyaan${nomorPertanyaan}" class="form-label">Pertanyaan <span class="text-danger">*</span></label>
-                                        <input id="pertanyaan${nomorPertanyaan}" type="hidden" name="pertanyaan[]" />
-                                        <trix-editor input="pertanyaan${nomorPertanyaan}"></trix-editor>
-                                    </div>
-
-                                    <!-- Options -->
-                                    <div class="col-lg-6 col-12 mb-3">
-                                        <label for="a${nomorPertanyaan}" class="form-label">A <span class="text-danger">*</span></label>
-                                        <input id="a${nomorPertanyaan}" type="hidden" name="a[]" />
-                                        <trix-editor input="a${nomorPertanyaan}"></trix-editor>
-                                    </div>
-                                    <div class="col-lg-6 col-12 mb-3">
-                                        <label for="b${nomorPertanyaan}" class="form-label">B <span class="text-danger">*</span></label>
-                                        <input id="b${nomorPertanyaan}" type="hidden" name="b[]" />
-                                        <trix-editor input="b${nomorPertanyaan}"></trix-editor>
-                                    </div>
-                                    <div class="col-lg-6 col-12 mb-3">
-                                        <label for="c${nomorPertanyaan}" class="form-label">C <span class="text-danger">*</span></label>
-                                        <input id="c${nomorPertanyaan}" type="hidden" name="c[]" />
-                                        <trix-editor input="c${nomorPertanyaan}"></trix-editor>
-                                    </div>
-                                    <div class="col-lg-6 col-12 mb-3">
-                                        <label for="d${nomorPertanyaan}" class="form-label">D</label>
-                                        <input id="d${nomorPertanyaan}" type="hidden" name="d[]" />
-                                        <trix-editor input="d${nomorPertanyaan}"></trix-editor>
-                                    </div>
-                                    <div class="col-lg-6 col-12 mb-3">
-                                        <label for="e${nomorPertanyaan}" class="form-label">E</label>
-                                        <input id="e${nomorPertanyaan}" type="hidden" name="e[]" />
-                                        <trix-editor input="e${nomorPertanyaan}"></trix-editor>
-                                    </div>
-
-                                    <!-- Answer Selection -->
-                                    <div class="col-lg-6 col-12 mb-3">
-                                        <label for="jawaban${nomorPertanyaan}" class="form-label text-primary fw-bold">Jawaban</label>
-                                        <select name="jawaban[]" class="form-select" id="jawaban${nomorPertanyaan}">
-                                            <option value="a">A</option>
-                                            <option value="b">B</option>
-                                            <option value="c">C</option>
-                                            <option value="d">D</option>
-                                            <option value="e">E</option>
-                                        </select>
-                                    </div>
+                    <div class="bg-white border border-dark-subtle rounded-2 p-4 mt-4 pertanyaan">
+                        <div>
+                            <h3>Soal <span class="badge badge-primary">${nomorPertanyaan}</span>
+                                <button type="button" class="btn btn-outline-danger btnKurangi">X</button>
+                            </h3>
+                            <input type="hidden" name="pertanyaanId[]" value="">
+                            <div class="mb-3 row">
+                                <div class="col-lg-12 col-12 mb-3">
+                                    <label class="form-label">Pertanyaan <span class="text-danger">*</span></label>
+                                    <input id="pertanyaan${nomorPertanyaan}" type="hidden" name="pertanyaan[]" />
+                                    <trix-editor input="pertanyaan${nomorPertanyaan}"></trix-editor>
+                                </div>
+                                <div class="col-lg-6 col-12 mb-3">
+                                    <label class="form-label">A <span class="text-danger">*</span></label>
+                                    <input id="a${nomorPertanyaan}" type="hidden" name="a[]" />
+                                    <trix-editor input="a${nomorPertanyaan}"></trix-editor>
+                                </div>
+                                <div class="col-lg-6 col-12 mb-3">
+                                    <label class="form-label">B <span class="text-danger">*</span></label>
+                                    <input id="b${nomorPertanyaan}" type="hidden" name="b[]" />
+                                    <trix-editor input="b${nomorPertanyaan}"></trix-editor>
+                                </div>
+                                <div class="col-lg-6 col-12 mb-3">
+                                    <label class="form-label">C <span class="text-danger">*</span></label>
+                                    <input id="c${nomorPertanyaan}" type="hidden" name="c[]" />
+                                    <trix-editor input="c${nomorPertanyaan}"></trix-editor>
+                                </div>
+                                <div class="col-lg-6 col-12 mb-3">
+                                    <label class="form-label">D</label>
+                                    <input id="d${nomorPertanyaan}" type="hidden" name="d[]" />
+                                    <trix-editor input="d${nomorPertanyaan}"></trix-editor>
+                                </div>
+                                <div class="col-lg-6 col-12 mb-3">
+                                    <label class="form-label">E</label>
+                                    <input id="e${nomorPertanyaan}" type="hidden" name="e[]" />
+                                    <trix-editor input="e${nomorPertanyaan}"></trix-editor>
+                                </div>
+                                <div class="col-lg-6 col-12 mb-3">
+                                    <label class="form-label text-primary fw-bold">Jawaban</label>
+                                    <select name="jawaban[]" class="form-select" required>
+                                        <option value="a">A</option>
+                                        <option value="b">B</option>
+                                        <option value="c">C</option>
+                                        <option value="d">D</option>
+                                        <option value="e">E</option>
+                                    </select>
                                 </div>
                             </div>
-                        </div>`;
+                        </div>
+                    </div>`;
                 @endif
 
                 // Tambahkan formulir pertanyaan baru ke dalam container

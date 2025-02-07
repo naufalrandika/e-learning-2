@@ -338,6 +338,8 @@ class UjianController extends Controller
                     'jumlah_soal' => $request->jumlahSoal[$i],
                 ];
 
+                dd($data);
+
                 if ($exist) {
                     $exist->update($data);
                 } else {
