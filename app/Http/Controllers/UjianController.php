@@ -62,38 +62,6 @@ class UjianController extends Controller
         return view('menu.pengajar.ujian.viewTambahUjian', ['assignedKelas' => $assignedKelas, 'tipe' => $request->type, 'title' => 'Tambah Ujian', 'roles' => $roles, 'kelasId' => $id, 'mapel' => $mapel]);
     }
 
-    private function processTrixContent($content)
-    {
-        // Use DOMDocument to parse HTML content
-        $dom = new \DOMDocument();
-        libxml_use_internal_errors(true); // Suppress warnings for HTML parsing
-        $dom->loadHTML($content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        libxml_clear_errors();
-
-        // Process all <img> tags
-        foreach ($dom->getElementsByTagName('img') as $img) {
-            $src = $img->getAttribute('src');
-
-            // If the image is a base64-encoded string, save it to storage
-            if (preg_match('/^data:image\/(\w+);base64,/', $src)) {
-                $data = explode(',', $src)[1];
-                $decodedData = base64_decode($data);
-
-                // Generate a unique file name
-                $imageName = 'soal/' . uniqid() . '.jpg';
-
-                // Save the image in the 'public/soal' directory
-                Storage::disk('public')->put($imageName, $decodedData);
-
-                // Replace the <img> src attribute with the stored image URL
-                $img->setAttribute('src', Storage::url($imageName));
-            }
-        }
-
-        // Return the updated HTML content
-        return $dom->saveHTML();
-    }
-
     public function createUjian(Request $request)
     {
         $name = $request->name ?? 'Ujian';
@@ -116,10 +84,9 @@ class UjianController extends Controller
         if ($request->tipe == 'essay') {
             foreach ($request->pertanyaan as $key) {
                 if ($key) {
-                    $soalWithImages = $this->processTrixContent($key); // Process Trix content for images
                     SoalUjianEssay::create([
                         'ujian_id' => $ujian->id,
-                        'soal' => $soalWithImages,
+                        'soal' => $key,
                     ]);
                 }
             }
@@ -128,10 +95,9 @@ class UjianController extends Controller
                 $d = $request->d[$i] ?? null;
                 $e = $request->e[$i] ?? null;
 
-                $soalWithImages = $this->processTrixContent($request->pertanyaan[$i]); // Process Trix content for images
                 SoalUjianMultiple::create([
                     'ujian_id' => $ujian->id,
-                    'soal' => $soalWithImages,
+                    'soal' => $request->pertanyaan[$i],
                     'a' => $request->a[$i],
                     'b' => $request->b[$i],
                     'c' => $request->c[$i],
@@ -162,35 +128,7 @@ class UjianController extends Controller
         }
 
         $assignedKelas = DashboardController::getAssignedClass();
-        return redirect(route('viewKelasMapel', [
-            'assignedKelas' => $assignedKelas,
-            'mapel' => $request->mapelId,
-            'token' => encrypt($id),
-            'mapel_id' => $request->mapelId
-        ]))->with('success', 'Data Berhasil di tambah');
-    }
-
-
-    // trix upload
-    public function uploadImage(Request $request)
-    {
-        // Validate the uploaded file
-        $request->validate([
-            'file' => 'required|image|max:2048', // Max size 2MB
-        ]);
-
-        // Store the file in the 'public/soal' folder
-        if ($request->hasFile('file')) {
-            $path = $request->file('file')->store('soal', 'public');
-
-            // Return the public path as JSON response
-            return response()->json([
-                'url' => asset("storage/{$path}")
-            ]);
-        }
-
-        // Return an error response
-        return response()->json(['error' => 'File upload failed'], 400);
+        return redirect(route('viewKelasMapel', ['assignedKelas' => $assignedKelas, 'mapel' => $request->mapelId, 'token' => encrypt($id), 'mapel_id' => $request->mapelId]))->with('success', 'Data Berhasil di tambah');
     }
 
     public function viewUjian($token, Request $request)
@@ -411,21 +349,65 @@ class UjianController extends Controller
         return view('menu.siswa.ujian.ujianAccess', ['quizCommit' => $quizCommit, 'ujian' => $ujian, 'userCommit' => $userCommit, 'assignedKelas' => $assignedKelas, 'tipe' => $data['tipe'], 'kelas' => $kelas, 'mapel' => $mapel, 'title' => 'Tambah Ujian', 'ujian' => $ujian, 'roles' => $roles]);
     }
 
+    // public function startUjian($token)
+    // {
+    //     $ujianId = decrypt($token);
+    //     $ujian = Ujian::find($ujianId);
+
+    //     UserCommit::create([
+    //         'user_id' => auth()->user()->id,
+    //         'ujian_id' => $ujianId,
+    //         'start_time' => now()->format('Y-m-d H:i:s'),
+    //         'end_time' => now()->addMinutes($ujian->time)->format('Y-m-d H:i:s'),
+    //         'due' => $ujian->due,
+    //     ]);
+
+    //     return redirect(route('userUjian', ['ujian' => $ujian->name, 'token' => encrypt($ujian->id)]));
+    // }
+
     public function startUjian($token)
     {
         $ujianId = decrypt($token);
         $ujian = Ujian::find($ujianId);
+        $userId = auth()->user()->id;
 
+        // Hapus jawaban lama untuk soal multiple choice (jika ada)
+        if ($ujian->tipe == 'multiple') {
+            // Ambil semua ID soal untuk ujian tersebut
+            $soalIds = $ujian->soalUjianMultiple->pluck('id');
+            UserJawaban::where('user_id', $userId)
+                ->whereIn('multiple_id', $soalIds)
+                ->delete();
+
+            // Hapus juga session penyimpanan urutan soal acak
+            $sessionKey = 'shuffledSoal_' . $ujian->id . '_' . $userId;
+            session()->forget($sessionKey);
+        }
+
+        // (Untuk tipe lain, lakukan hal serupa jika diperlukan)
+
+        // Jika tipe ujian multiple, simpan urutan soal acak ke session (fresh)
+        if ($ujian->tipe == 'multiple') {
+            $sessionKey = 'shuffledSoal_' . $ujian->id . '_' . $userId;
+            $shuffled = $ujian->soalUjianMultiple->shuffle()->toArray();
+            session([$sessionKey => $shuffled]);
+        }
+
+        // Buat record baru untuk commit ujian
         UserCommit::create([
-            'user_id' => auth()->user()->id,
-            'ujian_id' => $ujianId,
+            'user_id'    => $userId,
+            'ujian_id'   => $ujianId,
             'start_time' => now()->format('Y-m-d H:i:s'),
-            'end_time' => now()->addMinutes($ujian->time)->format('Y-m-d H:i:s'),
-            'due' => $ujian->due,
+            'end_time'   => now()->addMinutes($ujian->time)->format('Y-m-d H:i:s'),
+            'due'        => $ujian->due,
         ]);
 
-        return redirect(route('userUjian', ['ujian' => $ujian->name, 'token' => encrypt($ujian->id)]));
+        return redirect(route('userUjian', [
+            'ujian' => $ujian->name,
+            'token' => encrypt($ujian->id)
+        ]));
     }
+
 
     // public function userUjian($ujian, $token)
     // {
@@ -537,44 +519,72 @@ class UjianController extends Controller
     //     }
     // }
 
+    // public function userUjian($ujian, $token)
+    // {
+    //     $ujianId = decrypt($token);
+
+    //     try {
+    //         $userCommit = UserCommit::where('user_id', Auth()->user()->id)->where('ujian_id', $ujianId)->orderBy('created_at', 'desc')->first();
+    //         $userCommitFirst = UserCommit::where('user_id', Auth()->user()->id)->where('ujian_id', $ujianId)->orderBy('created_at', 'asc')->first();
+    //     } catch (Exception $e) {
+    //         abort(404);
+    //     }
+
+    //     $ujian = Ujian::find($ujianId);
+
+    //     $roles = DashboardController::getRolesName();
+    //     $assignedKelas = DashboardController::getAssignedClass();
+
+    //     if ($ujian->tipe == 'multiple') {
+    //         $soalUjianMultiple = $ujian->soalUjianMultiple; // Ambil semua soal dari ujian
+
+
+    //         if ($ujian->tipe == 'multiple' && $userCommitFirst['status'] == 'selesai') {
+    //             foreach ($soalUjianMultiple as $key) {
+    //                 UserJawaban::where('user_id', auth()->user()->id)
+    //                     ->where('multiple_id', $key->id)
+    //                     ->delete();
+    //             }
+    //             $userCommitFirst->delete();
+    //             // dd('here');
+    //         }
+
     public function userUjian($ujian, $token)
     {
         $ujianId = decrypt($token);
 
         try {
-            $userCommit = UserCommit::where('user_id', Auth()->user()->id)->where('ujian_id', $ujianId)->orderBy('created_at', 'desc')->first();
-            $userCommitFirst = UserCommit::where('user_id', Auth()->user()->id)->where('ujian_id', $ujianId)->orderBy('created_at', 'asc')->first();
+            $userCommit = UserCommit::where('user_id', Auth()->user()->id)
+                ->where('ujian_id', $ujianId)
+                ->orderBy('created_at', 'desc')
+                ->first();
         } catch (Exception $e) {
             abort(404);
         }
 
         $ujian = Ujian::find($ujianId);
-
         $roles = DashboardController::getRolesName();
         $assignedKelas = DashboardController::getAssignedClass();
 
         if ($ujian->tipe == 'multiple') {
-            $soalUjianMultiple = $ujian->soalUjianMultiple; // Ambil semua soal dari ujian
-
-
-            if ($ujian->tipe == 'multiple' && $userCommitFirst['status'] == 'selesai') {
-                foreach ($soalUjianMultiple as $key) {
-                    UserJawaban::where('user_id', auth()->user()->id)
-                        ->where('multiple_id', $key->id)
-                        ->delete();
-                }
-                $userCommitFirst->delete();
-                // dd('here');
+            $sessionKey = 'shuffledSoal_' . $ujian->id . '_' . auth()->user()->id;
+            if (session()->has($sessionKey)) {
+                $soalUjianMultiple = session($sessionKey);
+            } else {
+                $soalUjianMultiple = $ujian->soalUjianMultiple->shuffle()->toArray();
+                session([$sessionKey => $soalUjianMultiple]);
             }
-
+            // Jika status UserCommit sudah 'selesai', kita aktifkan mode review
+            $reviewMode = $userCommit->status == 'selesai';
 
             return view('menu.siswa.ujian.startUjianMultiple', [
-                'userCommit' => $userCommit,
-                'ujian' => $ujian,
-                'soalUjianMultiple' => $soalUjianMultiple, // Kirim data soal ke view
-                'title' => $ujian->name,
-                'roles' => $roles,
-                'assignedKelas' => $assignedKelas,
+                'userCommit'        => $userCommit,
+                'ujian'             => $ujian,
+                'soalUjianMultiple' => $soalUjianMultiple,
+                'title'             => $ujian->name,
+                'roles'             => $roles,
+                'assignedKelas'     => $assignedKelas,
+                'reviewMode'        => $reviewMode,  // Flag untuk menandai mode review/kunci jawaban
             ]);
         } elseif ($ujian->tipe == 'kecermatan') {
 
@@ -732,31 +742,66 @@ class UjianController extends Controller
         return redirect('home')->with('success', 'Ujian berhasil di submit');
     }
 
+    // public function selesaiUjianMultiple(Request $request)
+    // {
+    //     try {
+    //         $id = decrypt($request->userCommit);
+    //         $userCommit = UserCommit::where('id', $id)->first();
+    //         $userCommit->update(['status' => 'selesai']);
+    //         $ujian = Ujian::where('id', $userCommit['ujian_id'])->first();
+    //         $countUjian = count($ujian->SoalUjianMultiple);
+    //         $nilaiPerSoal = 100 / $countUjian;
+
+    //         foreach ($ujian->SoalUjianMultiple as $key) {
+    //             $jawabanUser = UserJawaban::where('multiple_id', $key->id)->where('user_id', Auth()->User()->id)->first();
+    //             if ($jawabanUser) {
+    //                 if (strcasecmp($key->jawaban, $jawabanUser['user_jawaban']) === 0) {
+    //                     $jawabanUser->update(['nilai' => $nilaiPerSoal]);
+    //                 } else {
+    //                     $jawabanUser->update(['nilai' => 0]);
+    //                 }
+    //             }
+    //         }
+    //         return redirect('home')->with('success', 'Ujian berhasil di submit');
+    //     } catch (Exception $e) {
+    //         return redirect('home')->with('success', 'Ujian berhasil di submit');
+    //     }
+    // }
+
     public function selesaiUjianMultiple(Request $request)
     {
         try {
             $id = decrypt($request->userCommit);
-            $userCommit = UserCommit::where('id', $id)->first();
+            $userCommit = UserCommit::find($id);
             $userCommit->update(['status' => 'selesai']);
-            $ujian = Ujian::where('id', $userCommit['ujian_id'])->first();
-            $countUjian = count($ujian->SoalUjianMultiple);
-            $nilaiPerSoal = 100 / $countUjian;
 
-            foreach ($ujian->SoalUjianMultiple as $key) {
-                $jawabanUser = UserJawaban::where('multiple_id', $key->id)->where('user_id', Auth()->User()->id)->first();
+            $ujian = Ujian::find($userCommit->ujian_id);
+            $soalCount = $ujian->soalUjianMultiple->count();
+            $nilaiPerSoal = $soalCount > 0 ? (100 / $soalCount) : 0;
+
+            foreach ($ujian->soalUjianMultiple as $soal) {
+                $jawabanUser = UserJawaban::where('multiple_id', $soal->id)
+                    ->where('user_id', Auth()->user()->id)
+                    ->first();
                 if ($jawabanUser) {
-                    if (strcasecmp($key->jawaban, $jawabanUser['user_jawaban']) === 0) {
+                    // Perbandingan tanpa memperhatikan kapital dan spasi ekstra
+                    if (strcasecmp(trim($soal->jawaban), trim($jawabanUser->user_jawaban)) === 0) {
                         $jawabanUser->update(['nilai' => $nilaiPerSoal]);
                     } else {
                         $jawabanUser->update(['nilai' => 0]);
                     }
                 }
             }
-            return redirect('home')->with('success', 'Ujian berhasil di submit');
+
+            // Redirect langsung ke halaman utama setelah submit ujian
+            return redirect('home')->with('success', 'Ujian berhasil disubmit!');
         } catch (Exception $e) {
-            return redirect('home')->with('success', 'Ujian berhasil di submit');
+            return redirect('home')->with('error', 'Terjadi kesalahan saat submit ujian');
         }
     }
+
+
+
 
     public function selesaiUjianKecermatan(Request $request)
     {

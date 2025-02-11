@@ -1,6 +1,9 @@
 @extends('layout.template.mainTemplate')
 
 @section('container')
+    {{-- Add CSRF Token meta --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     @if (session()->has('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
@@ -8,63 +11,126 @@
         </div>
     @endif
 
-    <style>
-        #soal-container {
-            overflow: hidden;
-        }
+    {{-- Main Section --}}
+    <div class="row">
+        {{-- Question Section --}}
+        <div class="col-lg-12 col-12">
+            <div class="bg-white p-4 rounded-2 row" id="question-section">
+                {{-- Connection Status --}}
+                <div id="connection-status" class="alert alert-info mb-3" style="display: none;">
+                    <span id="connection-text">Status Koneksi: Online</span>
+                </div>
 
-        .soal-image-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            max-width: 100%;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            margin-top: 16px;
-        }
+                {{-- Ganti bagian Sync Status yang lama dengan yang baru --}}
+                {{-- Sync Status - Posisikan di pojok kanan atas --}}
+                <div id="sync-status" class="position-fixed top-0 end-0 p-3" style="z-index: 1000; display: none;">
+                    <div class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="polite"
+                        aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <small>
+                                    <i class="fas fa-sync-alt fa-spin me-1"></i>
+                                    <span id="sync-text">Menyinkronkan...</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        .soal-image {
-            max-width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            border-radius: 8px;
-        }
+                <div class="alert alert-secondary" role="alert">
+                    Jangan <strong>Refresh / Meninggalkan</strong> Ujian Kecermatan ini!. Ujian Kecermatan tidak bisa
+                    diulang!.
+                </div>
 
-        .jawaban-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 400px;
-            height: 200px;
-            object-fit: cover;
-            overflow: hidden;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
+                <div class="text-center mb-3">
+                    <span class="badge badge-danger p-2 fs-2 rounded" id="question-seconds">{{ $ujian->time }}</span>
+                </div>
 
-        .jawaban-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-    </style>
+                {{-- Kolom --}}
+                <div class="border border-primary rounded-2 p-4 mb-4 col-12" id="kolom-container">
+                    <h1 class="text-primary fw-bold text-center" id="kolom-title">Kolom</h1>
+                    <hr>
+                    <div class="d-flex justify-content-center">
+                        @foreach (['a', 'b', 'c', 'd', 'e'] as $letter)
+                            <div class="text-center p-4 border d-none" id="kolom-{{ $letter }}">
+                                <h1 id="kolom-text-{{ $letter }}" class="mb-2" style="font-size: 7rem;"></h1>
+                                <h3>{{ strtoupper($letter) }}</h3>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
 
-    {{-- Informasi Tugas --}}
+                {{-- Soal --}}
+                <div class="border border-primary rounded-2 p-4 mb-4 col-12" id="soal-container">
+                    <h1 class="text-primary fw-bold text-center" id="soal-title">Soal 1</h1>
+                    <hr>
+                    <div class="text-center" id="soal-text"></div>
+                </div>
+
+                {{-- Jawaban --}}
+                <form id="ujianForm">
+                    <div class="rounded-2 mb-4 col-12">
+                        <div class="rounded-2 mb-4 col-12">
+                            <h2 class="text-primary fw-bold">Pilihan Jawaban</h2>
+                            <hr>
+                            <div class="row justify-content-center" id="jawaban-container"
+                                style="display: flex; justify-content: space-between;">
+                                @foreach (['a', 'b', 'c', 'd', 'e'] as $letter)
+                                    <div class="col-lg-2 col-md-2 col-sm-12 form-check mb-2" id="soal-{{ $letter }}"
+                                        style="text-align: center;">
+                                        <input class="form-check-input" type="radio" name="jawaban"
+                                            id="pilihan-{{ $letter }}" value="{{ strtoupper($letter) }}"
+                                            style="display: none;">
+                                        <label class="form-check-label w-100 btn" for="pilihan-{{ $letter }}"
+                                            style="display: block; background-color: white; color: black; border: 1px solid #a22020; padding: 15px; border-radius: 8px;">
+                                            {{ strtoupper($letter) }}. <span
+                                                id="label-pilihan-{{ $letter }}"></span>
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal --}}
+    <div class="modal fade" id="modalSelesai" tabindex="-1" aria-labelledby="modalSelesai" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmationModalLabel">Konfirmasi Selesai</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-sync-warning" class="alert alert-warning mb-3" style="display: none;">
+                        Masih ada jawaban yang belum tersinkronisasi. Mohon tunggu...
+                    </div>
+                    <p>Apakah Anda yakin mengakhiri ujian?</p>
+                </div>
+                <div class="modal-footer">
+                    <form action="{{ route('selesaiUjianKecermatan') }}" method="post" id="formSelesai">
+                        @csrf
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <input type="hidden" name="userCommit" id="userCommit" value="{{ encrypt($userCommit['id']) }}">
+                        <button type="submit" class="btn btn-danger" id="btnSelesai">Selesai</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="mb-4 p-4 bg-white rounded-4">
-        <div class=" p-4">
+        <div class="p-4">
             <h2 class="fw-bold mb-2 text-primary">{{ $ujian->name }}</h2>
             <hr>
             <div class="row">
                 @php
                     $end_time = Carbon\Carbon::parse($userCommit->end_time);
                     $now = Carbon\Carbon::now();
-                    if ($now > $end_time) {
-                        $diffInSeconds = 0;
-                    } else {
-                        $diffInSeconds = $end_time->diffInSeconds($now);
-                    }
+                    $diffInSeconds = $now > $end_time ? 0 : $end_time->diffInSeconds($now);
                 @endphp
 
                 <div class="border p-3 fw-bold col-lg-3 col-12">
@@ -78,485 +144,340 @@
                 </div>
                 <div class="border p-3 fw-bold col-lg-3 col-12">
                     <div id="countdown">
-                        Waktu :
+                        Waktu Total :
                         <span class="badge badge-danger p-2">
-                            <span id="minutes">{{ floor($diffInSeconds / 60) }}</span>
-                            <span id="seconds">{{ $diffInSeconds % 60 }}</span>
+                            <span id="total-seconds">{{ $diffInSeconds }}</span>
+                            <span class="badge badge-danger">{{ $ujian->time }} detik / soal</span>
                         </span>
                     </div>
                 </div>
-
                 <div class="col-12 border p-3 col-lg-3">
                     <span class="fw-bold">Jumlah Soal :</span>
                     {{ count($ujian->soalUjianMultiple) }}
+                    <button class="btn btn-outline-danger w-100" data-bs-toggle="modal"
+                        data-bs-target="#modalSelesai">Selesai Mengerjakan</button>
                 </div>
             </div>
         </div>
     </div>
-    <hr>
-
-    {{-- Main Section --}}
-    <div class="row">
-        {{-- Question Section --}}
-        <div class="col-lg-8 col-12">
-            <div class="bg-white p-4 rounded-2 row">
-                {{-- Soal --}}
-                <div class="border border-primary rounded-2 p-4 mb-4 col-12" id="soal-container">
-                    <h1 class="text-primary fw-bold" id="soal-title">Soal 1</h1>
-                    <hr>
-                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aliquid atque quos inventore nesciunt
-                        voluptates ipsam molestias non quasi incidunt dolor!</p>
-                </div>
-
-                {{-- Jawaban --}}
-                <form id="ujianForm">
-                    <div class="rounded-2 mb-4 col-12">
-                        <div class="rounded-2 mb-4 col-12">
-                            <h6 class="text-primary fw-bold">Pilihan Jawaban</h6>
-                            <div class="form-check flex flex-col">
-                                <input class="form-check-input items-center" type="radio" name="jawaban" id="pilihan-a"
-                                    value="A">
-                                <label class="form-check-label" for="pilihan-a">
-                                    A. <span class="jawaban-container" id="label-pilihan-a"></span>
-                                </label>
-                            </div>
-                            <div class="form-check flex flex-col">
-                                <input class="form-check-input" type="radio" name="jawaban" id="pilihan-b" value="B">
-                                <label class="form-check-label" for="pilihan-b">
-                                    B. <span class="jawaban-container" id="label-pilihan-b"></span>
-                                </label>
-                            </div>
-                            <div class="form-check flex flex-col">
-                                <input class="form-check-input" type="radio" name="jawaban" id="pilihan-c" value="C">
-                                <label class="form-check-label" for="pilihan-c">
-                                    C. <span class="jawaban-container" id="label-pilihan-c"></span>
-                                </label>
-                            </div>
-                            <div class="form-check" id="soal-d">
-                                <input class="form-check-input" type="radio" name="jawaban" id="pilihan-d" value="D">
-                                <label class="form-check-label" for="pilihan-d">
-                                    D. <span class="jawaban-container" id="label-pilihan-d"></span>
-                                </label>
-                            </div>
-                            <div class="form-check" id="soal-e">
-                                <input class="form-check-input" type="radio" name="jawaban" id="pilihan-e" value="E">
-                                <label class="form-check-label" for="pilihan-e">
-                                    E. <span class="jawaban-container" id="label-pilihan-e"></span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-
-                {{-- Next and Prev --}}
-                <div class="d-flex justify-content-between align-items-center col-12">
-                    <button class="btn btn-primary" id="prevBtn" disabled>Previous</button>
-                    <button class="btn btn-primary" id="nextBtn">Next</button>
-                </div>
-            </div>
-        </div>
-
-        {{-- Navigation --}}
-        <div class="col-lg-4 col-12">
-            <div class="bg-white p-4 rounded-2">
-                <div class="border border-primary rounded-2 p-4">
-                    <h5 class="text-primary fw-bold">Nomor Soal</h5>
-                    <div class="border border-secondary p-4 rounded-2" id="nomorSoalContainer">
-                        @foreach ($ujian->soalUjianMultiple as $index => $soal)
-                            <button class="btn btn-outline-primary nomor-soal-btn"
-                                data-soal="{{ $soal->id }}">{{ $index + 1 }}</button>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            <div class="mt-4">
-                <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#modalSelesai">Selesai
-                    Mengerjakan</button>
-            </div>
-        </div>
-
-    </div>
-
-    {{-- Modal --}}
-    <div class="modal fade" id="modalSelesai" tabindex="-1" aria-labelledby="modalSelesai" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteConfirmationModalLabel">Konfirmasi Selesai</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Apakah Anda yakin mengakhiri ujian?
-                </div>
-                <div class="modal-footer">
-                    <form action="{{ route('selesaiUjianMultiple') }}" method="post">
-                        @csrf
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                        <input type="hidden" name="userCommit" id="userCommit"
-                            value="{{ encrypt($userCommit['id']) }}">
-                        {{-- <input type="hidden" name="idMateri" id="idMateri" value="{{ $materi['id'] }}"> --}}
-                        <button type="submit" class="btn btn-danger">Selesai</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.tiny.cloud/1/jqqif5psx8ajdrpos129cpypqbqy3qmzk0lxwwxdu9s2lsn7/tinymce/6/tinymce.min.js"
-        referrerpolicy="origin"></script>;
-
-    <script src="{{ url('/asset/js/rich-text-editor.js') }}"></script>
 
     <script>
-        tinymce.init({
-            selector: ".tinymce",
-            inline: true,
-            readonly: 1,
-            toolbar: false,
-            menubar: false,
-            object_resizing: false,
-            content_css: false,
-            setup: function(editor) {
-                editor.on('keydown', function(e) {
-                    e.preventDefault(); // Mencegah interaksi keyboard
-                });
-                editor.on('cut', function(e) {
-                    e.preventDefault(); // Mencegah aksi cut (potong konten)
-                });
-                editor.on('drop', function(e) {
-                    e.preventDefault(); // Mencegah drop file atau konten
-                });
+        // Offline Storage Handler
+        class OfflineStorage {
+            constructor(userCommitId) {
+                this.storageKey = `exam_answers_${userCommitId}`;
+                this.setupConnectionListeners();
             }
-        });
 
-        // Variabel untuk melacak apakah pengguna telah menjawab setiap soal atau belum
-        var jawabanTersimpan = [];
-        var ujianForm = document.getElementById('ujianForm');
-        var isTimeUp = false;
-        // Fungsi untuk mengatur countdown
+            setupConnectionListeners() {
+                window.addEventListener('online', () => this.handleOnline());
+                window.addEventListener('offline', () => this.handleOffline());
+                this.updateConnectionStatus(navigator.onLine);
+            }
+
+            handleOnline() {
+                this.updateConnectionStatus(true);
+                this.syncPendingAnswers();
+            }
+
+            handleOffline() {
+                this.updateConnectionStatus(false);
+            }
+
+            updateConnectionStatus(isOnline) {
+                const statusDiv = document.getElementById('connection-status');
+                const statusText = document.getElementById('connection-text');
+
+                statusDiv.style.display = 'block';
+                statusDiv.className = `alert ${isOnline ? 'alert-success' : 'alert-warning'} mb-3`;
+                statusText.textContent = `Status Koneksi: ${isOnline ? 'Online' : 'Offline (Jawaban disimpan lokal)'}`;
+            }
+
+            saveAnswer(soalId, jawaban) {
+                const answers = this.getStoredAnswers();
+                answers[soalId] = {
+                    jawaban,
+                    timestamp: new Date().getTime(),
+                    synced: false
+                };
+                localStorage.setItem(this.storageKey, JSON.stringify(answers));
+
+                if (navigator.onLine) {
+                    this.syncPendingAnswers();
+                }
+            }
+
+            getStoredAnswers() {
+                const stored = localStorage.getItem(this.storageKey);
+                return stored ? JSON.parse(stored) : {};
+            }
+
+            async syncPendingAnswers() {
+                const answers = this.getStoredAnswers();
+                const pendingAnswers = Object.entries(answers).filter(([_, data]) => !data.synced);
+
+                if (pendingAnswers.length === 0) {
+                    document.getElementById('sync-status').style.display = 'none';
+                    return;
+                }
+
+                const syncStatus = document.getElementById('sync-status');
+                syncStatus.style.display = 'block';
+
+                for (const [soalId, data] of pendingAnswers) {
+                    try {
+                        const response = await fetch('/simpan-jawaban-kecermatan', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                soal_id: soalId,
+                                jawaban: data.jawaban
+                            })
+                        });
+
+                        if (response.ok) {
+                            answers[soalId].synced = true;
+                            localStorage.setItem(this.storageKey, JSON.stringify(answers));
+                        }
+                    } catch (error) {
+                        console.error('Sync failed:', error);
+                    }
+                }
+
+                this.updateSyncStatus();
+            }
+
+            updateSyncStatus() {
+                const answers = this.getStoredAnswers();
+                const pendingCount = Object.values(answers).filter(data => !data.synced).length;
+                const syncStatus = document.getElementById('sync-status');
+                const modalWarning = document.getElementById('modal-sync-warning');
+
+                if (pendingCount > 0) {
+                    syncStatus.style.display = 'block';
+                    modalWarning.style.display = 'block';
+                    document.getElementById('btnSelesai').disabled = true;
+                    syncStatus.querySelector('#sync-text').textContent =
+                    `${pendingCount} jawaban belum tersinkronisasi`;
+                } else {
+                    syncStatus.style.display = 'none';
+                    modalWarning.style.display = 'none';
+                    document.getElementById('btnSelesai').disabled = false;
+                }
+            }
+
+            hasPendingAnswers() {
+                const answers = this.getStoredAnswers();
+                return Object.values(answers).some(data => !data.synced);
+            }
+        }
+
+        // Inisialisasi variabel
+        let soalIndex = 0;
+        let soalData = @json($userJawabanKecermatan);
+        let kecermatanData = @json($ujian->Kecermatan);
+        let totalCountdown;
+        let questionCountdown;
+        let isTimeUp = false;
+        let currentKecermatanIndex = 0;
+        let currentKecermatan = kecermatanData[currentKecermatanIndex];
+        let questionsAnswered = 0;
+        let offlineStorage;
+        let currentQuestions = getQuestionsForCurrentKecermatan();
+        let totalQuestions = currentQuestions.length;
+
+        function getQuestionsForCurrentKecermatan() {
+            return soalData.filter(q => q.kecermatan_id === currentKecermatan.id);
+        }
+
+        function displayQuestion(index) {
+            if (index < totalQuestions) {
+                const currentQuestion = currentQuestions[index];
+                const savedAnswers = offlineStorage.getStoredAnswers();
+
+                document.getElementById('soal-title').textContent = `Soal ${questionsAnswered + 1}`;
+                document.getElementById('soal-text').innerHTML =
+                    `<h1 class='fw-bold display-1'>${currentQuestion.soal}</h1>`;
+                document.getElementById('kolom-title').textContent = `Kolom ke-${currentKecermatanIndex + 1}`;
+
+                // Reset radio buttons
+                document.querySelectorAll('input[type="radio"]').forEach(input => input.checked = false);
+
+                ['a', 'b', 'c', 'd', 'e'].forEach(letter => {
+                    const kolomTextElement = document.getElementById(`kolom-text-${letter}`);
+                    const kolomContainer = document.getElementById(`kolom-${letter}`);
+                    const answerElement = document.getElementById(`label-pilihan-${letter}`);
+                    const answerContainer = document.getElementById(`soal-${letter}`);
+                    const inputElement = document.getElementById(`pilihan-${letter}`);
+
+                    if (currentKecermatan[letter]) {
+                        kolomTextElement.textContent = currentKecermatan[letter];
+                        kolomContainer.classList.remove('d-none');
+                        answerElement.textContent = currentKecermatan[letter];
+                        answerContainer.classList.remove('d-none');
+                        inputElement.disabled = false;
+
+                        // Restore saved answer if exists
+                        // Restore saved answer if exists
+                        const savedAnswer = savedAnswers[currentQuestion.id];
+                        if (savedAnswer && savedAnswer.jawaban === letter.toUpperCase()) {
+                            inputElement.checked = true;
+                        }
+                    } else {
+                        kolomContainer.classList.add('d-none');
+                        answerContainer.classList.add('d-none');
+                        inputElement.disabled = true;
+                    }
+                });
+            } else {
+                moveToNextKecermatan();
+            }
+        }
+
+        function moveToNextKecermatan() {
+            clearInterval(questionCountdown);
+            currentKecermatanIndex++;
+
+            if (currentKecermatanIndex < kecermatanData.length) {
+                // Reset untuk kolom baru
+                currentKecermatan = kecermatanData[currentKecermatanIndex];
+                currentQuestions = getQuestionsForCurrentKecermatan();
+                totalQuestions = currentQuestions.length;
+                soalIndex = 0;
+                questionsAnswered = 0;
+
+                // Reset timer untuk kolom baru
+                document.getElementById('question-seconds').textContent = {{ $ujian->time }};
+                startQuestionCountdown();
+                displayQuestion(soalIndex);
+            } else {
+                endExam();
+            }
+        }
+
+        function goToNextQuestion() {
+            questionsAnswered++;
+            if (questionsAnswered >= totalQuestions) {
+                moveToNextKecermatan();
+                return;
+            }
+            soalIndex++;
+            displayQuestion(soalIndex);
+        }
+
+        function endExam() {
+            clearInterval(totalCountdown);
+            clearInterval(questionCountdown);
+            document.getElementById('question-section').style.display = 'none';
+            $('#modalSelesai').modal('show');
+        }
+
         function startCountdown(seconds) {
-            var displayMinutes = document.getElementById('minutes');
-            var displaySeconds = document.getElementById('seconds');
+            var displaySeconds = document.getElementById('total-seconds');
             var remainingSeconds = seconds;
 
-            var countdown = setInterval(function() {
+            clearInterval(totalCountdown);
+            totalCountdown = setInterval(function() {
                 if (remainingSeconds <= 0) {
-                    clearInterval(countdown);
-                    displayMinutes.textContent = 'Waktu Habis';
-                    displaySeconds.textContent = '';
-                    // Jika waktu habis, nonaktifkan elemen form
-                    ujianForm.disabled = true;
-                    // Nonaktifkan kotak input jawaban
-                    isTimeUp = true;
+                    clearInterval(totalCountdown);
+                    displaySeconds.textContent = 'Waktu Total Habis';
+                    // Tetap biarkan user melanjutkan ke kolom berikutnya
+                    if (currentKecermatanIndex < kecermatanData.length - 1) {
+                        moveToNextKecermatan();
+                    } else {
+                        endExam();
+                    }
                 } else {
-                    var minutes = Math.floor(remainingSeconds / 60);
-                    var seconds = remainingSeconds % 60;
-                    displayMinutes.textContent = minutes + ' menit';
-                    displaySeconds.textContent = seconds + ' detik';
+                    displaySeconds.textContent = remainingSeconds;
                     remainingSeconds--;
-                    isTimeUp = false;
-                    if (remainingSeconds < 0) {
-                        clearInterval(countdown);
-                        displayMinutes.textContent = 'Waktu Habis';
-                        displaySeconds.textContent = '';
-                        // Jika waktu habis, nonaktifkan elemen form
-                        ujianForm.disabled = true;
-                        // Nonaktifkan kotak input jawaban
-                        isTimeUp = true;
-                    }
                 }
-            }, 1000); // 1 detik
+            }, 1000);
         }
 
+        function startQuestionCountdown() {
+            var displaySeconds = document.getElementById('question-seconds');
+            var remainingQuestionSeconds = parseInt(document.getElementById('question-seconds').textContent);
 
-        // Memulai countdown dengan waktu dari PHP (dalam detik)
-        startCountdown({{ $diffInSeconds }});
-
-        var soalUjianMultiple = @json($ujian->soalUjianMultiple);
-
-        // Variabel untuk melacak nomor soal saat ini
-        var currentSoal = 0;
-
-        // Fungsi untuk menampilkan soal sesuai dengan nomor yang dipilih
-        function tampilkanSoal(nomor) {
-            if (nomor >= 1 && nomor <= soalUjianMultiple.length) {
-                currentSoal = nomor;
-                var selectedSoal = soalUjianMultiple[nomor - 1];
-                // Tampilkan nomor soal dan teks soal
-                // document.getElementById('soal-title').textContent = "Soal " + nomor;
-                document.getElementById('soal-container').innerHTML = `
-            <h1 class="text-primary fw-bold">Soal ${nomor}</h1>
-            <hr>
-                <div class="soal-image-container">${selectedSoal.soal}</div>
-        `;
-                // Cek apakah pengguna telah menjawab soal saat ini
-                var soalId = soalUjianMultiple[nomor - 1].id;
-                if (jawabanTersimpan[soalId]) {
-                    // Jika pengguna telah menjawab, tandai tombol nomor soal sebagai "btn-primary"
-                    document.querySelector(`button[data-soal="${soalId}"]`).classList.add('btn-primary');
-                    document.querySelector(`button[data-soal="${soalId}"]`).classList.remove('btn-outline-primary');
-                } else {
-                    // Jika pengguna belum menjawab, tandai tombol nomor soal sebagai "btn-outline-primary"
-                    document.querySelector(`button[data-soal="${soalId}"]`).classList.add('btn-outline-primary');
-                    document.querySelector(`button[data-soal="${soalId}"]`).classList.remove('btn-primary');
-                }
-
-                // Setel label pilihan jawaban
-                document.getElementById('label-pilihan-a').innerHTML =
-                    `
-                        ${selectedSoal.a}
-                `;
-
-                document.getElementById('label-pilihan-b').innerHTML =
-                    `
-                        ${selectedSoal.b}
-                `;
-
-                document.getElementById('label-pilihan-c').innerHTML =
-                    `
-                        ${selectedSoal.c}
-                `;
-
-                if (selectedSoal.d == null) {
-                    // console.log('d = null');
-                    // document.getElementById('label-pilihan-d').textContent = selectedSoal.d;
-                    // document.getElementById('label-pilihan-d').classList.add('d-none');
-                    document.getElementById('soal-d').classList.add('d-none');
-                } else {
-                    document.getElementById('label-pilihan-d').innerHTML =
-                        `
-                            ${selectedSoal.d}
-                    `;
-                    document.getElementById('soal-d').classList.remove('d-none');
-                }
-                if (selectedSoal.e == null) {
-                    // console.log('d = null');
-                    // document.getElementById('label-pilihan-d').textContent = selectedSoal.d;
-                    // document.getElementById('label-pilihan-d').classList.add('d-none');
-                    document.getElementById('soal-e').classList.add('d-none');
-                } else {
-                    document.getElementById('label-pilihan-e').innerHTML =
-                        `
-                            ${selectedSoal.e}
-                    `;
-                    document.getElementById('soal-e').classList.remove('d-none');
-                }
-
-
-                // document.getElementById('label-pilihan-d').textContent = selectedSoal.d;
-                document.getElementById('label-pilihan-e').innerHTML =
-                    `
-                        ${selectedSoal.e}
-                `;
-
-                // Reset pilihan jawaban
-                document.querySelectorAll('input[name="jawaban"]').forEach(function(input) {
-                    input.checked = false;
-                    // Tambahkan atribut 'disabled' jika waktu habis
-                    if (isTimeUp) {
-                        input.disabled = true;
+            clearInterval(questionCountdown);
+            questionCountdown = setInterval(function() {
+                if (remainingQuestionSeconds <= 0) {
+                    clearInterval(questionCountdown);
+                    // Cek apakah ini kolom terakhir
+                    if (currentKecermatanIndex >= kecermatanData.length - 1) {
+                        endExam();
                     } else {
-                        input.disabled = false;
+                        // Jika bukan kolom terakhir, pindah ke kolom berikutnya
+                        moveToNextKecermatan();
                     }
-                });
-            }
-        }
-
-        // Inisialisasi tampilan soal pertama
-        tampilkanSoal(1);
-        getJawaban();
-
-        // Tambahkan event listener untuk tombol "Next"
-        document.getElementById('nextBtn').addEventListener('click', function() {
-            if (currentSoal < soalUjianMultiple.length) {
-                tampilkanSoal(currentSoal + 1);
-                getJawaban();
-                // Aktifkan tombol "Previous"
-                document.getElementById('prevBtn').removeAttribute('disabled');
-                console.log(currentSoal);
-                console.log(soalUjianMultiple.length - 1);
-                // Jika pengguna sekarang di soal terakhir, nonaktifkan tombol "Next"
-                if (currentSoal > soalUjianMultiple.length - 1) {
-                    document.getElementById('nextBtn').setAttribute('disabled', 'true');
-                }
-            }
-            updateRaguRaguCheckbox(currentSoal - 1);
-        });
-
-        // Tambahkan event listener untuk tombol "Previous"
-        document.getElementById('prevBtn').addEventListener('click', function() {
-            tampilkanSoal(currentSoal - 1);
-            getJawaban();
-            if (currentSoal === 1) {
-                // Nonaktifkan tombol "Previous" jika kembali ke soal pertama
-                document.getElementById('nextBtn').removeAttribute('disabled');
-
-                if (currentSoal <= soalUjianMultiple.length - 1) {
-                    document.getElementById('prevBtn').setAttribute('disabled', 'true');
-                }
-            }
-            updateRaguRaguCheckbox(currentSoal - 1);
-        });
-
-        function updateRaguRaguCheckbox(currentSoalId) {
-            var raguRaguCheckbox = document.getElementById('raguRaguCheckbox');
-            raguRaguCheckbox.setAttribute('data-soal', currentSoalId);
-        }
-
-        // Tambahkan event listener untuk tombol nomor soal
-        var nomorSoalButtons = document.querySelectorAll('.nomor-soal-btn');
-        nomorSoalButtons.forEach(function(button, index) {
-            button.addEventListener('click', function() {
-                tampilkanSoal(index + 1);
-
-                // Nonaktifkan tombol "Previous" jika memilih soal dari nomor pertama
-                if (index === 0) {
-                    document.getElementById('prevBtn').setAttribute('disabled', 'true');
                 } else {
-                    // Aktifkan tombol "Previous"
-                    document.getElementById('prevBtn').removeAttribute('disabled');
+                    displaySeconds.textContent = remainingQuestionSeconds;
+                    remainingQuestionSeconds--;
                 }
-
-                // Periksa jika pengguna berada di ujung nomor soal, maka nonaktifkan tombol "Next"
-                if (index === soalUjianMultiple.length - 1) {
-                    document.getElementById('nextBtn').setAttribute('disabled', 'true');
-                } else {
-                    // Aktifkan tombol "Next" jika bukan di ujung nomor soal
-                    document.getElementById('nextBtn').removeAttribute('disabled');
-                }
-
-                // Periksa nomor soal saat ini dan mengambil jawaban dari database jika ada
-                var currentSoalId = soalUjianMultiple[index].id;
-                getJawaban(currentSoalId);
-
-                // Mengatur warna tombol nomor soal
-                // setButtonColors(index);
-            });
-        });
-
-
-
-
-        // Tambahkan token CSRF ke header permintaan
-        function getJawaban() {
-            var soalId = soalUjianMultiple[currentSoal - 1].id;
-            var data = {
-                soal_id: soalId,
-            };
-
-            // Kirim permintaan AJAX untuk mengambil jawaban dari database
-            $.ajax({
-                type: 'GET',
-                url: "{{ route('getJawabanMultiple') }}",
-                data: data,
-                success: function(response) {
-                    console.log(soalId);
-                    console.log(response.jawaban);
-
-                    // Periksa apakah ada jawaban yang tersimpan untuk soal ini
-                    if (response.jawaban) {
-                        // Cari elemen radio button yang sesuai dengan jawaban yang diterima
-                        var selectedRadioButton = $(`input[value='${response.jawaban}']`);
-
-                        // Periksa apakah elemen radio button ditemukan
-                        if (selectedRadioButton.length > 0) {
-                            selectedRadioButton.prop('checked', true);
-                        }
-
-                        jawabanTersimpan[soalId] = true; // tandai soal sebagai telah dijawab
-                    } else {
-                        // Jika tidak ada jawaban tersimpan, reset elemen radio button
-                        $("input[name='jawaban']").prop('checked', false);
-                        jawabanTersimpan[soalId] = false; // tandai soal sebagai belum dijawab
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Tangani kesalahan jika terjadi
-                    console.error(error);
-                }
-            });
+            }, 1000);
         }
 
-        $(document).ready(function() {
-            // Cek jawaban yang telah disimpan di Local Storage
-            for (var i = 0; i < soalUjianMultiple.length; i++) {
-                var soalId = soalUjianMultiple[i].id;
-                var storedJawaban = localStorage.getItem('jawaban_' + soalId);
+        // Initialize everything when document is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize offline storage
+            const userCommitId = document.getElementById('userCommit').value;
+            offlineStorage = new OfflineStorage(userCommitId);
 
-                if (storedJawaban) {
-                    // Jika jawaban telah tersimpan, tandai tombol sebagai "btn-primary"
-                    var nomorSoalButton = $('#nomorSoalContainer button[data-soal="' + soalId + '"]');
-                    nomorSoalButton.addClass('btn-primary');
-                    nomorSoalButton.removeClass('btn-outline-primary');
-                }
-            }
+            // Start countdowns
+            startCountdown(parseInt(document.getElementById('total-seconds').textContent));
+            startQuestionCountdown();
+            displayQuestion(soalIndex);
 
-            // Tambahkan event listener untuk elemen-elemen input dalam form
-            var inputElements = document.querySelectorAll('.form-check-input');
-
-            inputElements.forEach(function(inputElement) {
+            // Add event listeners for answer selection
+            document.querySelectorAll('.form-check-input').forEach(function(inputElement) {
                 inputElement.addEventListener('change', function(event) {
-                    var selectedValue = event.target.value;
-                    var soalId = soalUjianMultiple[currentSoal - 1].id;
+                    const selectedValue = event.target.value;
+                    const currentQuestion = currentQuestions[soalIndex];
 
-                    // Periksa apakah waktu telah habis
-                    var displayMinutes = document.getElementById('minutes');
-                    var displaySeconds = document.getElementById('seconds');
-                    var waktuHabis = displayMinutes.textContent === 'Waktu Habis' && displaySeconds
-                        .textContent === '';
+                    // Save answer locally
+                    offlineStorage.saveAnswer(currentQuestion.id, selectedValue);
 
-                    if (waktuHabis) {
-                        // Jika waktu telah habis, tidak perbolehkan memilih jawaban
-                        alert('Waktu ujian telah habis. Anda tidak dapat memilih jawaban lagi.');
-                        // Kembalikan radio button ke status sebelumnya
-                        event.target.checked = false;
+                    // Move to next question
+                    goToNextQuestion();
+                });
+            });
+
+            // Handle form submission
+            document.querySelector('#formSelesai').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const submitButton = this.querySelector('#btnSelesai');
+                const originalText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML =
+                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyinkronkan...';
+
+                try {
+                    // Final sync attempt
+                    await offlineStorage.syncPendingAnswers();
+
+                    if (offlineStorage.hasPendingAnswers()) {
+                        alert(
+                            'Beberapa jawaban belum tersinkronisasi. Mohon tunggu hingga koneksi internet stabil.');
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
                         return;
                     }
 
-                    // Simpan jawaban di Local Storage
-                    localStorage.setItem('jawaban_' + soalId, selectedValue);
-
-                    // Tangai tombol nomor soal sebagai "btn-primary" jika ada jawaban
-                    var nomorSoalButton = $('#nomorSoalContainer button[data-soal="' + soalId +
-                        '"]');
-
-                    if (selectedValue !== '') {
-                        nomorSoalButton.addClass('btn-primary');
-                        nomorSoalButton.removeClass('btn-outline-primary');
-                    } else {
-                        nomorSoalButton.addClass('btn-outline-primary');
-                        nomorSoalButton.removeClass('btn-primary');
-                    }
-
-                    // Kirim jawaban yang dipilih ke server dengan AJAX (jika diperlukan)
-                    var data = {
-                        soal_id: soalId,
-                        jawaban: selectedValue,
-                    };
-
-                    $.ajaxSetup({
-                        headers: {
-                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                        }
-                    });
-
-                    $.ajax({
-                        type: 'POST',
-                        url: '/simpan-jawaban-multiple', // Ganti dengan URL yang sesuai
-                        data: data,
-                        success: function(response) {
-                            // Tangani respon dari server
-                            console.log(response.message);
-                            // Di sini Anda dapat menambahkan notifikasi atau tindakan lain sesuai kebutuhan.
-                        },
-                        error: function(xhr, status, error) {
-                            // Tangani kesalahan jika terjadi
-                            console.error(error);
-                        }
-                    });
-                });
+                    // If everything is synced, submit the form
+                    this.submit();
+                } catch (error) {
+                    console.error('Error during final sync:', error);
+                    alert('Terjadi kesalahan saat menyinkronkan jawaban. Mohon coba lagi.');
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                }
             });
 
+            // Check connection status on load
+            offlineStorage.updateConnectionStatus(navigator.onLine);
         });
     </script>
 @endsection
