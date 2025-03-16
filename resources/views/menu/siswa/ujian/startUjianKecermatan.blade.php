@@ -61,7 +61,7 @@
 
                 {{-- Soal --}}
                 <div class="border border-primary rounded-2 p-4 mb-4 col-12" id="soal-container">
-                    <h1 class="text-primary fw-bold text-center" id="soal-title">Soal 1</h1>
+                    <h2 class="text-primary fw-bold">Pertanyaan:</h2>
                     <hr>
                     <div class="text-center" id="soal-text"></div>
                 </div>
@@ -82,7 +82,7 @@
                                             style="display: none;">
                                         <label class="form-check-label w-100 btn" for="pilihan-{{ $letter }}"
                                             style="display: block; background-color: white; color: black; border: 1px solid #a22020; padding: 15px; border-radius: 8px;">
-                                            {{ strtoupper($letter) }}. <span id="label-pilihan-{{ $letter }}"></span>
+                                            {{ strtoupper($letter) }}
                                         </label>
                                     </div>
                                 @endforeach
@@ -295,7 +295,6 @@
                 const currentQuestion = currentQuestions[index];
                 const savedAnswers = offlineStorage.getStoredAnswers();
                 
-                document.getElementById('soal-title').textContent = `Soal ${questionsAnswered + 1}`;
                 document.getElementById('soal-text').innerHTML = `<h1 class='fw-bold display-1'>${currentQuestion.soal}</h1>`;
                 document.getElementById('kolom-title').textContent = `Kolom ke-${currentKecermatanIndex + 1}`;
 
@@ -305,18 +304,15 @@
                 ['a', 'b', 'c', 'd', 'e'].forEach(letter => {
                     const kolomTextElement = document.getElementById(`kolom-text-${letter}`);
                     const kolomContainer = document.getElementById(`kolom-${letter}`);
-                    const answerElement = document.getElementById(`label-pilihan-${letter}`);
                     const answerContainer = document.getElementById(`soal-${letter}`);
                     const inputElement = document.getElementById(`pilihan-${letter}`);
 
                     if (currentKecermatan[letter]) {
                         kolomTextElement.textContent = currentKecermatan[letter];
                         kolomContainer.classList.remove('d-none');
-                        answerElement.textContent = currentKecermatan[letter];
                         answerContainer.classList.remove('d-none');
                         inputElement.disabled = false;
 
-                        // Restore saved answer if exists
                         // Restore saved answer if exists
                         const savedAnswer = savedAnswers[currentQuestion.id];
                         if (savedAnswer && savedAnswer.jawaban === letter.toUpperCase()) {
