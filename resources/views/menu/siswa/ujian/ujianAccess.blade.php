@@ -319,71 +319,66 @@
                     <div class="accordion-body table-responsive p-4">
                         <table id="table" class="table table-striped table-hover table-lg ">
                             <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Soal</th>
-                                    <th scope="col">Jawaban anda</th>
-                                    <th scope="col">Kunci Jawaban</th>
-                                    <th scope="col">Nilai</th>
-                                </tr>
-                            </thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Soal</th>
+        <th scope="col">Jawaban Anda</th>
+        <th scope="col">Kunci Jawaban</th>
+        <th scope="col">Nilai</th>
+    </tr>
+</thead>
 
-                            <tbody>
-                                @php
-                                    $nilaiTotal = 0;
-                                @endphp
-                                @foreach ($ujian->SoalUjianMultiple as $key)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{!! $key->soal !!}</td>
-                                        <td>
-                                            @php
-                                                $jawaban = App\Models\UserJawaban::where('user_id', Auth()->User()->id)
-                                                    ->where('multiple_id', $key->id)
-                                                    ->first();
-                                                if ($jawaban) {
-                                                    $nilaiTotal += $jawaban['nilai'];
-                                                    $temp = $jawaban['user_jawaban'];
-                                                }
-                                            @endphp
-                                            @if ($jawaban)
-                                                {{ $jawaban['user_jawaban'] }}.
+<tbody>
+    @php
+        $nilaiTotal = 0;
+    @endphp
+    @foreach ($ujian->SoalUjianMultiple as $key)
+        <tr>
+            <td>{{ $loop->iteration }}</td>
+            <td>{!! $key->soal !!}</td>
+            <td>
+                @php
+                    $jawaban = App\Models\UserJawaban::where('user_id', Auth()->User()->id)
+                        ->where('multiple_id', $key->id)
+                        ->first();
+                    
+                    if ($jawaban) {
+                        $nilaiTotal += $jawaban['nilai'];
+                        $jawabanUser = $jawaban['user_jawaban'];
+                    } else {
+                        $jawabanUser = null;
+                    }
+                @endphp
+                
+                @if ($jawaban)
+                    {{ $jawabanUser }}. 
+                    {{ 
+                        strip_tags(
+                            $jawabanUser == 'A' ? $key->a : 
+                            ($jawabanUser == 'B' ? $key->b : 
+                            ($jawabanUser == 'C' ? $key->c : 
+                            ($jawabanUser == 'D' ? $key->d : 
+                            ($jawabanUser == 'E' ? $key->e : '')))))
+                    }}
+                @else
+                    -
+                @endif
+            </td>
+            <td>
+                {{ strtoupper($key->jawaban) }}. 
+                {{ strip_tags($key->{$key->jawaban}) }}
+            </td>
+            <td>
+                @if ($jawaban)
+                    {{ number_format($jawaban['nilai'], 2) }}
+                @else
+                    -
+                @endif
+            </td>
+        </tr>
+    @endforeach
+</tbody>
 
-                                                @if ($jawaban['user_jawaban'] == 'A')
-                                                    {{ $key->a }}
-                                                @elseif ($jawaban['user_jawaban'] == 'B')
-                                                    {{ $key->b }}
-                                                @elseif ($jawaban['user_jawaban'] == 'C')
-                                                    {{ $key->c }}
-                                                @elseif ($jawaban['user_jawaban'] == 'D')
-                                                    {{ $key->d }}
-                                                @elseif ($jawaban['user_jawaban'] == 'E')
-                                                    {{ $key->e }}
-                                                @endif
-                                            @endif
-                                        </td>
-                                        <td>
-                                            {!! strtoupper($key->jawaban) !!}.
-                                            @if ($key->jawaban == 'a')
-                                                {{ $key->a }}
-                                            @elseif ($key->jawaban == 'b')
-                                                {{ $key->b }}
-                                            @elseif ($key->jawaban == 'c')
-                                                {{ $key->c }}
-                                            @elseif ($key->jawaban == 'd')
-                                                {{ $key->d }}
-                                            @elseif ($key->jawaban == 'e')
-                                                {{ $key->e }}
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($jawaban)
-                                                {{ substr($jawaban['nilai'], 0, 4) }}
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
                         </table>
                         @php
                             if ($nilaiTotal >= 100) {
